@@ -1,3 +1,5 @@
+# https://gstreamer.freedesktop.org/documentation/tutorials/basic/hello-world.html?gi-language=python
+
 import sys
 import gi
 from pprint import pprint
