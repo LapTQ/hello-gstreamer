@@ -1,4 +1,5 @@
-/*
+/* https://chirag4798.medium.com/nvidia-deepstream-101-a-step-by-step-guide-to-creating-your-first-deepstream-application-68148753cf96
+
 filesrc -> qtdemux -> h264parse -> nvv4l2decoder -> nvstreammux -> nvinfer -> nvtracker -> nvvideoconvert -> nvdsosd -> nvvideoconvert -> nvv4l2h264enc -> h264parse -> qtmux -> filesink
 
 - filesrc: read in the input mp4 file.
