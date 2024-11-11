@@ -8,10 +8,10 @@ docker run \
     -e QT_X11_NO_MITSHM=1 \
     -e NVIDIA_DRIVER_CAPABILITIES=all \
     -e NVIDIA_VISIBLE_DEVICES=all \
-    -e NVDS_DIR=/opt/nvidia/deepstream/deepstream \
+    -e DIR_NVDS=/opt/nvidia/deepstream/deepstream \
     --runtime nvidia \
     --workdir $( pwd ) \
     --name hello-deepstream \
-    nvcr.io/nvidia/deepstream:6.1.1-samples
+    nvcr.io/nvidia/deepstream:7.1-triton-multiarch
 
 
