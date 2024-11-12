@@ -169,15 +169,23 @@ int main (int argc, char *argv[]){
   bus_watch_id = gst_bus_add_watch (bus, bus_call, loop);
   gst_object_unref (bus);
 
-  /*
-  * Link "video_0" pad of qtdemux to sink pad of h264Parse
-  * "video_0" pad of qtdemux is created only when 
-  * a valid video stream is found in the input
-  * in that case only the pipeline will be linked
+
+  // Before linking the elements together, the elements need to be added to the same GST_BIN.
+  
+  /* Not all elements in pipeline can be linked together with `gst_link_many` function.
+
+  For example, with qtdemux:
+  * the video_%u pad and audio_%u pad are only created when the audio and video streams are detected by the qtdemux.
+  * Once the audio and video streams are detected, the qtdemux will
+    * create the video_%u pad and audio_%u pad.
+    * call the callback function which is set for the "pad-added" signal. See  `gst-inspect-1.0 qtdemux`.
+        * in this case, the callback function is `cb_new_pad`. The function will be called every time a new pad is created.
+        * we will use `g_signal_connect` to connect the signal to the callback function. (See: https://docs.gtk.org/gobject/func.signal_connect.html)
+  
+  * In our `cb_new_pad`, we will Link "video_0" pad of qtdemux to sink pad of h264Parse.
   */
   g_signal_connect (qtdemux, "pad-added", G_CALLBACK (cb_new_pad), h264parser);
 
-  // Before linking the elements together, the elements need to be added to the same GST_BIN.
   gst_bin_add_many (
     GST_BIN (pipeline),
     source,
@@ -198,32 +206,28 @@ int main (int argc, char *argv[]){
   );
   
   /* 
-  * Dynamic linking
-  * sink_0 pad of nvstreammux is only created on request
-  * and hence cannot be linked automatically
-  * Need to request it to create it and then link it 
-  * to the upstream element in the pipeline
+  With nvstreammux:
+  * sink_%u pad is only created on request.
+
+  Therefore, we need to request the sink pad from the streammux and link it to the src pad of the nvv4l2decoder.
   */
   GstPad *sinkpad, *srcpad;
   gchar pad_name_sink[16] = "sink_0";
   gchar pad_name_src[16] = "src";
 
-  /* Dynamically created pad */
-  sinkpad = gst_element_get_request_pad (streammux, pad_name_sink);
+  sinkpad = gst_element_get_request_pad (streammux, pad_name_sink); // Dynamic pad
   if (!sinkpad) {
     g_printerr ("Streammux request sink pad failed. Exiting.\n");
     return -1;
   }
 
-  /* Statically created pad */
-  srcpad = gst_element_get_static_pad (nvv4l2decoder, pad_name_src);
+  srcpad = gst_element_get_static_pad (nvv4l2decoder, pad_name_src); // Static pad
   if (!srcpad) {
     g_printerr ("Decoder request src pad failed. Exiting.\n");
     return -1;
   }
 
-  /* Linking the pads */
-  if (gst_pad_link (srcpad, sinkpad) != GST_PAD_LINK_OK) {
+  if (gst_pad_link (srcpad, sinkpad) != GST_PAD_LINK_OK) {  // Link the pads
       g_printerr ("Failed to link decoder to stream muxer. Exiting.\n");
       return -1;
   }
