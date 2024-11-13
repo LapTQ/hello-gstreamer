@@ -212,18 +212,18 @@ int main (int argc, char *argv[]){
   Therefore, we need to request the sink pad from the streammux and link it to the src pad of the nvv4l2decoder.
   */
   GstPad *sinkpad, *srcpad;
-  gchar pad_name_sink[16] = "sink_0";
   gchar pad_name_src[16] = "src";
-
-  sinkpad = gst_element_get_request_pad (streammux, pad_name_sink); // Dynamic pad
-  if (!sinkpad) {
-    g_printerr ("Streammux request sink pad failed. Exiting.\n");
-    return -1;
-  }
+  gchar pad_name_sink[16] = "sink_0";
 
   srcpad = gst_element_get_static_pad (nvv4l2decoder, pad_name_src); // Static pad
   if (!srcpad) {
     g_printerr ("Decoder request src pad failed. Exiting.\n");
+    return -1;
+  }
+
+  sinkpad = gst_element_get_request_pad (streammux, pad_name_sink); // Dynamic pad
+  if (!sinkpad) {
+    g_printerr ("Streammux request sink pad failed. Exiting.\n");
     return -1;
   }
 
