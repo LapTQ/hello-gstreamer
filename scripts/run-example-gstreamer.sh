@@ -1,10 +1,11 @@
-PATH_SRC=gstreamer-examples/ex-1-hello-video.c
-DIR_OUTPUT=outputs
-mkdir -p $DIR_OUTPUT
+# PATH__FILE__SRC=gstreamer-examples/c/ex-1-hello-video.c
+PATH__FILE__SRC=gstreamer-examples/c/ex-2-manual-hello-world.c
+PATH__DIR__OUTPUT=outputs
+mkdir -p $PATH__DIR__OUTPUT
 
 gcc \
-    -o $DIR_OUTPUT/main.out \
-    $PATH_SRC \
+    -o $PATH__DIR__OUTPUT/main.out \
+    $PATH__FILE__SRC \
     `pkg-config --cflags --libs gstreamer-1.0` \
 
-./${DIR_OUTPUT}/main.out
+./${PATH__DIR__OUTPUT}/main.out
