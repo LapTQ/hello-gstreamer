@@ -1,4 +1,5 @@
 # docker pull nvcr.io/nvidia/deepstream:7.1-gc-triton-devel
+# docker pull nvcr.io/nvidia/deepstream:7.1-samples-multiarch
 
 xhost +
 docker run \
