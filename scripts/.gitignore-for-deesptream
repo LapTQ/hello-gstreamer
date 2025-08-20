@@ -1,0 +1,17 @@
+bin/
+lib/
+build/
+.cache/
+*.onnx
+*.onxx
+*.engine
+*.mp4
+*.h264
+*.wav
+*.jpg
+*.mov
+*.tbz2
+*.so
+*.whl
+*.csv
+*.pdf
