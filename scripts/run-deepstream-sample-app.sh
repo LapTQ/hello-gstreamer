@@ -36,8 +36,9 @@ cd /opt/nvidia/deepstream/deepstream/sources/apps/sample_apps/deepstream-test3
 export CUDA_VER=12.6
 make
 
-# run, either of 2 ways:
+# run, either of 3 ways:
 # ./deepstream-test3-app file:///opt/nvidia/deepstream/deepstream/samples/streams/sample_720p.h264 file:///opt/nvidia/deepstream/deepstream/samples/streams/sample_qHD.h264
 ./deepstream-test3-app dstest3_config.yml
+# NVDS_TEST3_PERF_MODE=1 ./deepstream-test3-app dstest3_config.yml
 
 make clean
