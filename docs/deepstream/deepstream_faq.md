@@ -321,7 +321,27 @@ Khi đó preprocess nhận từng buffer riêng lẻ, không bị ảnh hưởng
 
 ## 5. Các key config quan trọng khác
 
-### `secondary-reinfer-interval` (nvinfer SGIE)
+### 5.1. `src-ids` và các tham số lọc object trong `nvdspreprocess`
+
+Trong cấu hình `nvdspreprocess` (ví dụ: `config_preprocess_action_recognition.txt`), các tham số định nghĩa trong một group (như `[group-0]`) chỉ có hiệu lực với các source ID được liệt kê trong trường `src-ids`.
+
+```
+[group-0]
+src-ids=0;1;2;3;4;5;6;7;8;9
+custom-input-transformation-function=custom_transform_pose_sequence
+process-on-roi=1
+process-on-all-objects=1
+roi-params-src-0=0;0;100;100
+roi-params-src-1=0;0;100;100
+input-object-min-width=0
+input-object-min-height=0
+draw-roi=0
+```
+
+- **Vấn đề**: Nếu danh sách `src-ids` không bao gồm tất cả các source đang chạy trong pipeline, các source bị thiếu sẽ không được áp dụng các tùy chỉnh trong group đó.
+- **Hệ lụy**: Các source không nằm trong `src-ids` có thể (chưa xác nhận) sẽ sử dụng giá trị mặc định của plugin. Một ví dụ điển hình là `input-object-min-width` và `input-object-min-height`. Nếu trong group bạn đã set bằng `0` để nhận mọi object, nhưng source ID không có trong group, nó sẽ dùng giá trị mặc định (có thể > 0), dẫn đến việc các object nhỏ bị lọc bỏ một cách âm thầm và không được đưa vào xử lý (tensor preparation).
+
+### 5.2. `secondary-reinfer-interval` (nvinfer SGIE)
 
 ```yaml
 # Trong config SGIE (ví dụ action_recognition.yml)
@@ -336,7 +356,7 @@ property:
 
 > **Lưu ý**: Key này KHÁC với `interval` (chỉ control batch skipping, không ảnh hưởng object history cache).
 
-### `input-tensor-from-meta` (nvinfer)
+### 5.3. `input-tensor-from-meta` (nvinfer)
 
 ```yaml
 # Trong config nvinfer SGIE
@@ -348,7 +368,7 @@ Khi sử dụng `nvdspreprocess` + `nvinfer`, cần set **cả 2 nơi**:
 1. `input-tensor-from-meta: 1` trong config YAML của nvinfer
 2. `input-tensor-meta: 1` trong `deepstream-app.yml` (vì `g_object_set` override YAML parser)
 
-### `unique-id` / `target-unique-ids` (nvdspreprocess ↔ nvinfer matching)
+### 5.4. `unique-id` / `target-unique-ids` (nvdspreprocess ↔ nvinfer matching)
 
 ```ini
 # config_preprocess.txt
