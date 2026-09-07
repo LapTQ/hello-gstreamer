@@ -1,60 +1,52 @@
-# What is Gstreamer?
+# GStreamer là gì?
 
-- Based on "plugins".
-- The plugins can be "linked".
+- Kiến trúc các "plugin".
+- Các plugin được liên kết với nhau.
 
-## Plugins
-
-GStreamer plug-ins could be classified into
-- protocols handling
-- sources: for audio and video (involves protocol plugins)
-- formats: parsers, formaters, muxers, demuxers, metadata, subtitles
-- codecs: coders and decoders
-- filters: converters, mixers, effects, ...
-- sinks: for audio and video (involves protocol plugins)
-
-![](../../assets/gstreamer-overview.png)
-
-## GStreamer packages
-- gstreamer: the core package
-- gst-plugins-base: an essential exemplary set of elements
-- gst-plugins-good: a set of good-quality plug-ins under LGPL
-- gst-plugins-ugly: a set of good-quality plug-ins that might pose distribution problems
-- gst-plugins-bad: a set of plug-ins that need more quality
-- gst-libav: a set of plug-ins that wrap libav for decoding and encoding
-- a few others packages
-
-## Design Principles
-
-- **Object oriented**: GStreamer adheres to `GObject`, the `GLib 2.0` object model. GStreamer intends to be similar in programming methodology to `GTK+`.
-- **Extensible**: All GStreamer Objects can be extended using the `GObject` inheritance methods.
-- **Allow binary-only plugins**: Plugins are shared libraries that are loaded at runtime. Since all the properties of the plugin can be set using the `GObject` properties, there is no need (and in fact no way) to have any header files installed for the plugins. Special care has been taken to make plugins completely self-contained.
-
-## Foundation
+## Các khái niệm cơ bản (Foundation)
 
 ![](../../assets/gs-simple-player.png)
 
 ![](../../assets/gstreamer-communication.png)
 
 * ***Elements***:
-    * You will usually create a chain of elements linked together and let data flow through this chain of elements.
-    * An element has one specific function.
-    * GStreamer ships with a large collection of elements by default. If needed, you can also write new elements. That topic is explained in greater detail in the *GStreamer Plugin Writer's Guide*.
-* ***Pads***:
-    * They are used to negotiate links and data flow between elements, can be viewed as a  “port” on an element.
-    * Links are only allowed between two pads when the allowed data types (capabilities) of the two pads are compatible.
-    * Data usually means ***buffers*** (`GstBuffer`) and ***events*** (`GstEvent`).
-* ***Bins*** and ***Pipelines***:
-    * A bin is a special (subclass) of elements themselves used to contain a collection of elements. Therefore, you can, for example, change state on all elements in a bin by changing the state of that bin itself.
-    * Bins also forward bus messages from their contained children.
-    * A pipeline is a top-level bin. It provides a bus for the application. It manages the synchronization for its children.
-    * Once started, pipelines will run in a separate thread.
-* ***Communication***:
-    * ***Buffers***: object sent between elements. Buffers always travel from sources to sinks.
-    * ***Events***: object sent between elements or from the application to elements.
-    * ***Messages***: object that elements post to the pipeline's message bus, where they will be held for collection by the application synchronously or asynchronously.
-    * ***Queries***: allow applications to request information. Elements can also use queries to request information from their peer elements. Queries are always answered synchronously.
+    * Tự viết element mới: Tham khảo *GStreamer Plugin Writer's Guide*.
+* ***Pads (Cổng giao tiếp)***:
+    * Các "cổng" (port) của element, dùng để kết nối và truyền dữ liệu giữa các element.
+    * Hai pad chỉ cho phép kết nối nếu các kiểu dữ liệu chúng hỗ trợ (capabilities) tương thích với nhau.
+    * Dữ liệu truyền qua các pad gồm: ***buffers*** (`GstBuffer`), ***events*** (`GstEvent`), ***queries*** (`GstQuery`).
+* ***Bins*** và ***Pipelines***:
+    * Bin:
+        * Là một element (subclass)
+        * Dùng để chứa các element khác. 
+        * Ta có thể thay đổi trạng thái của toàn bộ element trong bin bằng cách thay đổi trạng thái của chính bin đó.
+    * Pipeline:
+        * Là một bin ở cấp độ cao nhất (top-level). 
+        * Nó cung cấp một bus cho ứng dụng.
+        * Khi được chạy (started), pipeline sẽ chạy trong một thread riêng biệt.
+* ***Giao tiếp***:
+    * ***Buffers***: dữ liệu luân chuyển giữa các element. Luôn đi từ source -> sink.
+    * ***Events***: các sự kiện truyền giữa các element, hoặc từ ứng dụng xuống element.
+    * ***Messages***: các thông báo do element gửi cho ứng dụng thông qua bus của pipeline.
+    * ***Queries***: cho phép ứng dụng truy vấn thông tin, hoặc cho phép element truy vấn thông tin từ các element khác.
 
+## Nguyên lý thiết kế
+
+- **Hướng đối tượng (Object oriented)**: GStreamer tuân theo mô hình object `GObject` (`GLib 2.0`). GStreamer có phong cách lập trình tương tự như `GTK+`.
+- **Dễ mở rộng (Extensible)**: Tất cả object trong GStreamer đều có thể được mở rộng thông qua cơ chế kế thừa của `GObject`.
+- **Hỗ trợ plugin dạng nhị phân (Allow binary-only plugins)**.
+
+## Các gói GStreamer (packages)
+
+- gstreamer: gói cốt lõi
+- gst-plugins-base: tập hợp các element cơ bản, thiết yếu
+- gst-plugins-good: các plugin chất lượng cao (giấy phép LGPL)
+- gst-plugins-ugly: các plugin chất lượng tốt nhưng có thể vướng mắc về bản quyền/phân phối
+- gst-plugins-bad: các plugin cần được hoàn thiện thêm về chất lượng
+- gst-libav: đóng gói bộ thư viện libav dùng để encode và decode
+- Một vài gói khác
+
+![](../../assets/gstreamer-overview.png)
 
 ## References
 
