@@ -139,14 +139,32 @@ gst_object_unref(pipeline);                         // ... pipeline chỉ giải
 
 **Trường hợp của Element**:
 ```C
-source = gst_element_factory_make("videotestsrc", "source");    // ref_count = 1
+source = gst_element_factory_make("videotestsrc", "source");    // Element này mang một trạng thái đặc biệt gọi là Floating Reference (ref_count = 1, nhưng ở trạng thái "trôi nổi")
 gst_bin_add(GST_BIN(pipeline), source);                         // pipeline tự động gọi gst_object_ref_sink(source) để chuyển quyền sở hữu cho pipeline, ref_count = 1
 // ...
 gst_object_unref(pipeline);                                     // pipeline tự động gọi gst_object_unref(source) để giảm ref_count = 0, source được giải phóng
 ```
 
-> [!NOTE]
-> Mặc định CHỈ CÓ MỖI CON SỐ `ref_count`, đối tượng hoàn toàn KHÔNG hề biết ai (hàm nào, biến nào, luồng nào) đang trỏ vào nó! Bên trong struct `GObject`, trường này chỉ đơn giản là một số nguyên 32-bit.
-> * Khi bạn gọi:
->   * `gst_object_ref(obj)`: CPU chỉ thực hiện đúng một lệnh nguyên tử (atomic): `ref_count++`.
->   * `gst_object_unref(obj)`: CPU chỉ thực hiện `ref_count--`. Nếu kết quả bằng `0` thì gọi hàm hủy `free()`.
+Mặc định CHỈ CÓ MỖI CON SỐ `ref_count`, đối tượng hoàn toàn KHÔNG hề biết ai (hàm nào, biến nào, luồng nào) đang trỏ vào nó! Bên trong struct `GObject`, trường này chỉ đơn giản là một số nguyên.
+* Khi bạn gọi:
+  * `gst_object_ref(obj)`: CPU chỉ thực hiện đúng một lệnh: `ref_count++`.
+  * `gst_object_unref(obj)`: CPU chỉ thực hiện `ref_count--`. Nếu kết quả bằng `0` thì gọi hàm hủy `free()`.
+
+Ngoài `ref_count`, mỗi đối tượng còn có thêm 1 lá cờ trạng thái tên là `FLOATING`. Hàm `gst_object_ref_sink()` thực chất chạy logic như sau:
+```C
+gpointer gst_object_ref_sink (gpointer object) {
+    // 1. Kiểm tra xem đối tượng có đang mang cờ FLOATING hay không?
+    if (GST_OBJECT_IS_FLOATING (object)) {
+        
+        // NẾU CÓ: "Đánh chìm phao" (Gỡ bỏ cờ FLOATING)
+        GST_OBJECT_FLAG_UNSET (object, GST_OBJECT_FLAG_FLOATING);
+        
+        // GIỮ NGUYÊN ref_count = 1, KHÔNG TĂNG!
+        return object; 
+    }
+
+    // 2. NẾU KHÔNG (đối tượng đã có chủ từ trước):
+    // Tăng ref_count lên 1 như hàm ref bình thường
+    return gst_object_ref (object);
+}
+```
