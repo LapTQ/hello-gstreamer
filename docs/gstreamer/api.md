@@ -134,7 +134,8 @@ gst_object_unref(bus);                              // Phải tự unref bus ở
 gst_object_unref(pipeline);                         // ... pipeline chỉ giải phóng 1 tham chiếu mà nó nắm giữ đối với bus
 ```
 
-> [!NOTE] Trong tài liệu của GStreamer, tất cả các hàm dạng `gst_*_get_*()` trả về con trỏ `GstObject*` đều tăng `ref_count` (transfer full). Người gọi hàm có trách nhiệm phải gọi `gst_object_unref()` khi dùng xong.
+> [!NOTE]
+> Trong tài liệu của GStreamer, tất cả các hàm dạng `gst_*_get_*()` trả về con trỏ `GstObject*` đều tăng `ref_count` (transfer full). Người gọi hàm có trách nhiệm phải gọi `gst_object_unref()` khi dùng xong.
 
 **Trường hợp của Element**:
 ```C
@@ -144,7 +145,8 @@ gst_bin_add(GST_BIN(pipeline), source);                         // pipeline tự
 gst_object_unref(pipeline);                                     // pipeline tự động gọi gst_object_unref(source) để giảm ref_count = 0, source được giải phóng
 ```
 
-> [!INFO] Mặc định CHỈ CÓ MỖI CON SỐ `ref_count`, đối tượng hoàn toàn KHÔNG hề biết ai (hàm nào, biến nào, luồng nào) đang trỏ vào nó! Bên trong struct `GObject`, trường này chỉ đơn giản là một số nguyên 32-bit.
+> [!INFO]
+> Mặc định CHỈ CÓ MỖI CON SỐ `ref_count`, đối tượng hoàn toàn KHÔNG hề biết ai (hàm nào, biến nào, luồng nào) đang trỏ vào nó! Bên trong struct `GObject`, trường này chỉ đơn giản là một số nguyên 32-bit.
 > * Khi bạn gọi:
 >   * `gst_object_ref(obj)`: CPU chỉ thực hiện đúng một lệnh nguyên tử (atomic): `ref_count++`.
 >   * `gst_object_unref(obj)`: CPU chỉ thực hiện `ref_count--`. Nếu kết quả bằng `0` thì gọi hàm hủy `free()`.
