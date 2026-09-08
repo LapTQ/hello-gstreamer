@@ -116,7 +116,7 @@ typedef enum {
 ```C
 void
 gst_object_unref(
-    gpointer object         // Đối tượng kế thừa từ GstObject cần giảm tham chiếu
+    gpointer object
 )
 ```
 
@@ -168,3 +168,72 @@ gpointer gst_object_ref_sink (gpointer object) {
     return gst_object_ref (object);
 }
 ```
+
+# Tương tác với Bus
+
+## Nhóm phương thức đồng bộ (Blocking / Polling)
+
+
+```C
+GstMessage *
+gst_bus_timed_pop_filtered(
+    GstBus * bus,
+    GstClockTime timeout,
+    GstMessageType types
+)
+```
+"Chặn" (block) chương trình lại và chờ cho đến khi có một thông điệp thuộc loại bạn quan tâm (ví dụ: `GST_MESSAGE_ERROR` hoặc `GST_MESSAGE_EOS`) xuất hiện trên Bus, hoặc cho đến khi hết thời gian chờ (`timeout`).
+
+### `gst_bus_pop`
+
+```C
+GstMessage *
+gst_bus_pop (GstBus * bus)
+```
+Lấy thông điệp đầu tiên ra khỏi hàng đợi của Bus. Hàm này trả về ngay lập tức; nếu không có thông điệp nào, nó trả về NULL. Thường dùng với `while` để kiểm tra Bus liên tục.
+
+```C
+GstMessage *
+gst_bus_peek (GstBus * bus)
+```
+Hoạt động giống `pop`, nhưng nó chỉ "nhìn trộm" thông điệp đầu tiên mà không rút nó ra khỏi hàng đợi.
+
+## Nhóm phương thức bất đồng bộ (Asynchronous)
+
+Để cả hai hàm sau hoạt động, ứng dụng của bạn bắt buộc phải đang chạy một vòng lặp sự kiện (thường là GLib Main Loop, hoặc vòng lặp của GTK/Qt).
+
+```C
+gboolean
+gst_bus_add_watch (
+    GstBus * bus,
+    GstMessage * message,
+    gpointer user_data
+)
+```
+Đăng ký **một hàm callback duy nhất**. Bất kể GStreamer gửi thông điệp gì (lỗi, cảnh báo, đổi trạng thái, hết video...), nó đều nhét hết vào hàm callback này.
+* Hàm callback của bạn phải trả về `TRUE` (hoặc `G_SOURCE_CONTINUE`) để tiếp tục theo dõi Bus. Nếu trả về `FALSE` (hoặc `G_SOURCE_REMOVE`), GStreamer sẽ tự động hủy việc theo dõi.
+
+```C
+gst_bus_add_signal_watch (GstBus * bus)
+```
+Thay vì ép bạn hứng mọi thứ vào một chỗ như `gst_bus_add_watch`, nó sẽ tự động phân loại thông điệp và "bắn" ra các tín hiệu (signal) riêng biệt. Khi đó, bạn có thể chỉ định callback riêng biệt cho từng loại sự kiện thông qua hàm `g_signal_connect`.
+
+VD:
+```C
+// Chia nhỏ thành các hàm xử lý riêng biệt
+static void on_error_cb (GstBus *bus, GstMessage *msg, gpointer data) {
+    // Chỉ tập trung xử lý lỗi
+}
+
+static void on_eos_cb (GstBus *bus, GstMessage *msg, gpointer data) {
+    // Chỉ tập trung xử lý kết thúc luồng
+}
+
+// Cách gọi:
+gst_bus_add_signal_watch (bus); // 1. Bật chế độ signal
+
+// 2. Nối từng tín hiệu với từng hàm tương ứng
+g_signal_connect (bus, "message::error", G_CALLBACK (on_error_cb), user_data);
+g_signal_connect (bus, "message::eos", G_CALLBACK (on_eos_cb), user_data);
+```
+
