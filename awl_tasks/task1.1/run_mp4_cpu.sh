@@ -8,6 +8,11 @@ gst-launch-1.0 playbin uri=file://$IN_FILE
 
 # chia nhỏ element
 gst-launch-1.0 filesrc location=$IN_FILE ! decodebin ! videoconvert ! autovideosink
+# ⚠️ lệnh này chạy trên Docker Image của NVIDIA sẽ bị lỗi.
+# Khi NVIDIA đóng gói môi trường DeepStream, họ đã tinh chỉnh và "cắt xén" GStreamer
+# để tối ưu dung lượng và tránh các rắc rối về giấy phép bản quyền phần mềm mã nguồn mở.
+# Đó là lý do GStreamer trong container này hoàn toàn không biết x264enc (nén video bằng CPU) 
+# hay MPEG-4 AAC decoder (giải mã âm thanh bằng CPU) là gì.
 
 # xuất ra file
 gst-launch-1.0 -e filesrc location=$IN_FILE ! decodebin ! videoconvert ! x264enc ! mp4mux ! filesink location=$OUT_DIR/output.mp4
