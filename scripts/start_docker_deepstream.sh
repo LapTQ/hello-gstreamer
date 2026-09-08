@@ -1,17 +1,17 @@
-curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
-  && curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
-    sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
-    sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
-sudo apt-get update
+# curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+#   && curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
+#     sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+#     sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+# sudo apt-get update
 
-xhost +
+# xhost +
 
 docker run \
     -it \
     -d \
     \
-    -v /run/media/laptq/data/workspace:/run/media/laptq/data/workspace \
-    -v /home/laptq/Downloads:/home/laptq/Downloads \
+    -v /home/laptq:/home/laptq \
+    -v /mnt/ssd8tb/shared_workspace/laptq:/mnt/ssd8tb/shared_workspace/laptq \
     \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
     -v ${HOME}/.Xauthority:/root/.Xauthority \
@@ -30,7 +30,7 @@ docker run \
     \
     --workdir $( pwd ) \
     \
-    --name hello-gstreamer \
-    nvcr.io/nvidia/deepstream:7.0-samples-multiarch
+    --name laptq_ds \
+    nvcr.io/nvidia/deepstream:7.0-triton-multiarch
 
 
