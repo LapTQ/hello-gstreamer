@@ -1,16 +1,16 @@
-mkdir -p outputs
+IN_FILE=/home/laptq/hello-gstreamer/assets/video_1.mp4
+OUT_DIR=outputs
+
+mkdir -p $OUT_DIR
 
 # use playbin
-gst-launch-1.0 playbin uri=file:///Users/user/Downloads/hello-gstreamer/assets/video_1.mp4
-gst-launch-1.0 playbin uri=rtsp://admin:12345@192.168.3.27/live
+gst-launch-1.0 playbin uri=file://$IN_FILE
 
 # chia nhỏ element
-gst-launch-1.0 filesrc location=assets/video_1.mp4 ! decodebin ! videoconvert ! autovideosink
-gst-launch-1.0 rtspsrc location=rtsp://admin:12345@192.168.3.27/live ! decodebin ! videoconvert ! autovideosink
+gst-launch-1.0 filesrc location=$IN_FILE ! decodebin ! videoconvert ! autovideosink
 
 # xuất ra file
-gst-launch-1.0 filesrc location=assets/video_1.mp4 ! decodebin ! videoconvert ! x264enc ! mp4mux ! filesink location=outputs/output.mp4
-gst-launch-1.0 -e rtspsrc location=rtsp://admin:12345@192.168.3.27/live ! decodebin ! videoconvert ! x264enc ! mp4mux ! filesink location=outputs/output.mp4
+gst-launch-1.0 -e filesrc location=$IN_FILE ! decodebin ! videoconvert ! x264enc ! mp4mux ! filesink location=$OUT_DIR/output.mp4
 # Bấm Ctrl + C bình thường sẽ giết ngay tiến trình. `mp4mux` chưa kịp đóng file và chưa ghi `moov atom` (chứa thời lượng, danh sách khung hình, codec...) vào file MP4.
 # cờ -e chặn Ctrl + C, gửi sự kiện EOS chạy hết pipeline để mp4mux hoàn tất ghi header rồi mới thoát.
 
