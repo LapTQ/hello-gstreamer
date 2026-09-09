@@ -10,7 +10,7 @@
 #include<gst/gst.h>
 
 
-static void link_to_rtph264depay(GstElement* source, GstPad* pad, GstElement* rtph264depay) {
+static void link_to_rtph264depay(GstElement* rtspsrc, GstPad* pad, GstElement* rtph264depay) {
     GstPad* rtph264depay_sinkpad { gst_element_get_static_pad(rtph264depay, "sink") };
 
     if (gst_pad_is_linked(rtph264depay_sinkpad)) {
