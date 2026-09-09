@@ -14,11 +14,22 @@ fi
 # PATH__FILE__SRC=gstreamer-examples/c/ex-1-hello-video.c
 # PATH__FILE__SRC=gstreamer-examples/c/ex-2-manual-hello-world.c
 # PATH__FILE__SRC=gstreamer-examples/c/ex-3-dynamic-pipeline.c
-PATH__FILE__SRC=src/gstreamer/1.playvideo.c
+PATH__FILE__SRC=awl_tasks/task1.3/main.cpp
 PATH__DIR__OUTPUT=outputs
 mkdir -p $PATH__DIR__OUTPUT
 
-gcc \
+g++ \
+    -fdiagnostics-color=always \
+    -g \
+    -ggdb \
+    -O2 \
+    -DNDEBUG \
+    -pedantic-errors \
+    -Wall \
+    -Wextra \
+    -Wconversion \
+    -Wsign-conversion \
+    -std=c++17 \
     -o $PATH__DIR__OUTPUT/main.out \
     $PATH__FILE__SRC \
     `pkg-config --cflags --libs gstreamer-1.0`
