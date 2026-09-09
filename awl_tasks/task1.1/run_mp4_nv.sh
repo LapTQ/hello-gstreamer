@@ -9,7 +9,7 @@ SINK=nv3dsink      # DGPU arm64 hoặc IGPU
 gst-launch-1.0 filesrc location=$IN_FILE ! qtdemux ! h264parse ! nvv4l2decoder ! nvvideoconvert ! $SINK
 
 # xuất ra file
-gst-launch-1.0 filesrc location=$IN_FILE ! qtdemux ! h264parse ! nvv4l2decoder ! nvvideoconvert ! nvv4l2h264enc ! h264parse ! mp4mux ! filesink location=$OUT_DIR/output.mp4
+gst-launch-1.0 -e filesrc location=$IN_FILE ! qtdemux ! h264parse ! nvv4l2decoder ! nvvideoconvert ! nvv4l2h264enc ! h264parse ! mp4mux ! filesink location=$OUT_DIR/output.mp4
 
 # Quy trình:
 # 1. filesrc: đọc file -> luồng byte nhị phân thô. Không biết là video hay văn bản.
