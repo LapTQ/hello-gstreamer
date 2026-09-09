@@ -20,8 +20,9 @@ static void link_to_rtph264depay(GstElement* rtspsrc, GstPad* pad, GstElement* r
 
     GstCaps* caps { gst_pad_get_current_caps(pad) };
     GstStructure* cap_structure { gst_caps_get_structure(caps, 0) };
-    const gchar* cap_type { gst_structure_get_name(cap_structure) };
-    if (!g_str_has_prefix(cap_type, "application/x-rtp")) {
+    const gchar* media = gst_structure_get_string(cap_structure, "media");
+    const gchar* encoding = gst_structure_get_string(cap_structure, "encoding-name");
+    if (g_strcmp0(media, "video") != 0 || g_strcmp0(encoding, "H264") != 0) {
         gst_object_unref(caps);
         gst_object_unref(rtph264depay_sinkpad);
         return;
