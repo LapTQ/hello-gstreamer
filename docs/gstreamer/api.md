@@ -237,3 +237,76 @@ g_signal_connect (bus, "message::error", G_CALLBACK (on_error_cb), user_data);
 g_signal_connect (bus, "message::eos", G_CALLBACK (on_eos_cb), user_data);
 ```
 
+# Liên kết Pad
+
+```C
+GstPadLinkReturn
+gst_pad_link (
+    GstPad * srcpad,
+    GstPad * sinkpad
+)
+```
+Cắm một cổng `src` vào một cổng `sink`. Hàm này trả về mã lỗi rất chi tiết (`GstPadLinkReturn`) để bạn biết chính xác tại sao nối thất bại.
+
+```C
+gboolean
+gst_pad_is_linked (GstPad * pad)
+```
+Kiểm tra xem cổng này đã được liên kết hay chưa.
+
+```C
+GstPad *
+gst_pad_get_peer (GstPad * pad)
+```
+Lấy ra Pad đang được nối ở đầu bên kia.
+
+Một số phương thức khác có thể hữu ích:
+* `gst_pad_unlink`
+
+Tham khảo:
+* [GstPad](https://gstreamer.freedesktop.org/documentation/gstreamer/gstpad.html?gi-language=c)
+
+# Kiểm tra Caps của Pad
+
+```C
+GstCaps *
+gst_pad_query_caps (
+    GstPad * pad,
+    GstCaps * filter)
+```
+Trả về danh sách tất cả các định dạng mà Pad này hỗ trợ.
+
+```C
+GstCaps *
+gst_pad_get_current_caps (GstPad * pad)
+```
+Lấy ra định dạng (Caps) đang được Pad sử dụng thực tế ngay lúc này. 1 Pad tại một thời điểm chỉ có thể mang đúng 1 định dạng duy nhất, do đó mảng GstCaps mà `gst_pad_get_current_caps` trả về chỉ chứa đúng 1 `GstStructure` duy nhất.
+
+```C
+GstStructure *
+gst_caps_get_structure (
+    const GstCaps * caps,
+    guint index
+)
+```
+* Một đối tượng `GstCaps` thực chất là một mảng chứa một hoặc nhiều `GstStructure`. 
+* Mỗi `GstStructure` lưu các cặp key-value mô tả một định dạng cụ thể (ví dụ: `audio/x-raw`, `format=S16LE`, `rate=44100`, `channels=2`). 
+    * Sau khi lấy được cấu trúc này, bạn mới có thể gọi các hàm như `gst_structure_get_int()` để lấy ra con số chiều rộng (width) hoặc chiều cao (height) của video, hay `gst_structure_get_name()` để lấy tên.
+
+# Gắn callback vào Pad
+
+```C
+gulong
+gst_pad_add_probe (
+    GstPad * pad,
+    GstPadProbeType mask,
+    GstPadProbeCallback callback,
+    gpointer user_data,
+    GDestroyNotify destroy_data
+)
+```
+Gắn và kích hoạt hàm callback mỗi khi dòng dữ liệu đi qua Pad ở trạng thái cụ thể (probe type).
+
+Một số phương thức khác có thể hữu ích:
+* `gst_pad_remove_probe`
+
