@@ -210,7 +210,7 @@ gst_bus_add_watch (
     gpointer user_data
 )
 ```
-Đăng ký **một hàm callback duy nhất**. Bất kể GStreamer gửi thông điệp gì (lỗi, cảnh báo, đổi trạng thái, hết video...), nó đều nhét hết vào hàm callback này.
+Đăng ký callback và gọi mỗi khi bus nhận được 1 thông điệp, bất kể thông điệp đó là gì (lỗi, cảnh báo, đổi trạng thái, hết video...).
 * Hàm callback của bạn phải trả về `TRUE` (hoặc `G_SOURCE_CONTINUE`) để tiếp tục theo dõi Bus. Nếu trả về `FALSE` (hoặc `G_SOURCE_REMOVE`), GStreamer sẽ tự động hủy việc theo dõi.
 
 ```C
