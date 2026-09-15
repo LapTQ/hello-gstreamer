@@ -101,6 +101,15 @@ int main(int argc, char* argv[]) {
         gst_object_unref(sinkpad);
     }
 
+    GstElement* detector { gst_element_factory_make("nvinfer", "detector") };
+    g_object_set(
+        G_OBJECT(detector),
+        "config-file-path", "awl_tasks/task2.2/nvinfer_detector_config_file.yml",
+        NULL
+    );      // 1 vài thuộc tính trong file config có thể được ghi đè thông qua Gst Properties
+
+    // GstElement* tracker { gst_element_factory_make("nvtracker", "tracker") };
+
     GstElement* tiler { gst_element_factory_make("nvmultistreamtiler", "tiler") };
     g_object_set(
         G_OBJECT(tiler),
@@ -110,6 +119,14 @@ int main(int argc, char* argv[]) {
     );
 
     GstElement* converter { gst_element_factory_make("nvvideoconvert", "converter") };
+
+    GstElement* nvosd { gst_element_factory_make("nvdsosd", "nvosd") };
+    g_object_set(
+        G_OBJECT(nvosd),
+        "process-mode", 0,
+        "display-text", 0,
+        NULL
+    );
     
     // GstElement* sink { gst_element_factory_make("nveglglessink", "sink") };
     GstElement* encoder { gst_element_factory_make("nvv4l2h264enc", "encoder") };
@@ -121,8 +138,10 @@ int main(int argc, char* argv[]) {
     gst_bin_add_many(
         GST_BIN(pipeline),
         streammux,
+        detector,
         tiler,
         converter,
+        nvosd,
         // sink,
         encoder, parser2, mp4mux, sink,
         NULL
@@ -131,8 +150,10 @@ int main(int argc, char* argv[]) {
      gboolean _link_success { false };
     _link_success = gst_element_link_many(
         streammux,
+        detector,
         tiler,
         converter,
+        // nvosd,
         // sink,
         encoder, parser2, mp4mux, sink,
         NULL
