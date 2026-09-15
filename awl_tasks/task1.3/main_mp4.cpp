@@ -27,7 +27,7 @@ static void link_to_h264parse(GstElement* qtdemux, GstPad* pad, GstElement* h264
         gst_object_unref(h264parse_sinkpad);
         return;
     }
-    // hoặc thay vì phải nhớ chuỗi video/x-h264, có thể dùng `gst_pad_is_linked` trực tiếp xem 2 pad có cắm được vào nhau hay không
+    // hoặc thay vì phải nhớ chuỗi video/x-h264, có thể dùng `gst_pad_can_link` trực tiếp xem 2 pad có cắm được vào nhau hay không
 
     GstPadLinkReturn _link_ret { gst_pad_link(pad, h264parse_sinkpad) };
     if (GST_PAD_LINK_FAILED(_link_ret)) {
