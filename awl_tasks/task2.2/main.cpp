@@ -65,8 +65,8 @@ int main(int argc, char* argv[]) {
     gst_init(&argc, &argv);
 
     std::vector<std::string> list_uris {
-        "file:///home/laptq/hello-gstreamer/assets/video_1.mp4",
-        "rtsp://admin:12345@192.168.3.27/live"
+        "file:///run/media/laptq/data/workspace/hello-gstreamer/assets/sample_720p.h264",
+        // "rtsp://admin:12345@192.168.3.27/live"
     };
 
     GstElement* pipeline { gst_pipeline_new("pipeline") };
@@ -123,17 +123,17 @@ int main(int argc, char* argv[]) {
     GstElement* nvosd { gst_element_factory_make("nvdsosd", "nvosd") };
     g_object_set(
         G_OBJECT(nvosd),
-        "process-mode", 0,
-        "display-text", 0,
+        "process-mode", 1,
+        "display-text", 1,
         NULL
     );
     
-    // GstElement* sink { gst_element_factory_make("nveglglessink", "sink") };
-    GstElement* encoder { gst_element_factory_make("nvv4l2h264enc", "encoder") };
-    GstElement* parser2 { gst_element_factory_make("h264parse", "parser2") };
-    GstElement* mp4mux { gst_element_factory_make("mp4mux", "mp4mux") };
-    GstElement* sink { gst_element_factory_make("filesink", "sink") };
-    g_object_set(G_OBJECT(sink), "location", "outputs/output.mp4", NULL);
+    GstElement* sink { gst_element_factory_make("nveglglessink", "sink") };
+    // GstElement* encoder { gst_element_factory_make("nvv4l2h264enc", "encoder") };
+    // GstElement* parser2 { gst_element_factory_make("h264parse", "parser2") };
+    // GstElement* mp4mux { gst_element_factory_make("mp4mux", "mp4mux") };
+    // GstElement* sink { gst_element_factory_make("filesink", "sink") };
+    // g_object_set(G_OBJECT(sink), "location", "outputs/output.mp4", NULL);
 
     gst_bin_add_many(
         GST_BIN(pipeline),
@@ -142,8 +142,8 @@ int main(int argc, char* argv[]) {
         tiler,
         converter,
         nvosd,
-        // sink,
-        encoder, parser2, mp4mux, sink,
+        sink,
+        // encoder, parser2, mp4mux, sink,
         NULL
     );
 
@@ -153,9 +153,9 @@ int main(int argc, char* argv[]) {
         detector,
         tiler,
         converter,
-        // nvosd,
-        // sink,
-        encoder, parser2, mp4mux, sink,
+        nvosd,
+        sink,
+        // encoder, parser2, mp4mux, sink,
         NULL
     );
     if (_link_success != TRUE) {

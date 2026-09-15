@@ -51,4 +51,4 @@ property:
 class-attrs-all:
   topk: 20
   nms-iou-threshold: 0.5
-  pre-cluster-threshold: 0.2 # change it FPS maybe affected
+  pre-cluster-threshold: 0.4 # change it FPS maybe affected
