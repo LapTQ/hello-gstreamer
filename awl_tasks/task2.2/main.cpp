@@ -65,12 +65,8 @@ int main(int argc, char* argv[]) {
     gst_init(&argc, &argv);
 
     std::vector<std::string> list_uris {
-        "file:///run/media/laptq/data/workspace/hello-gstreamer/assets/video_1.mp4",
-        "file:///run/media/laptq/data/workspace/hello-gstreamer/assets/video_1.mp4",
-        "file:///run/media/laptq/data/workspace/hello-gstreamer/assets/video_1.mp4",
-        "file:///run/media/laptq/data/workspace/hello-gstreamer/assets/video_1.mp4",
-
-        // "rtsp://admin:12345@192.168.3.27/live"
+        "file:///home/laptq/hello-gstreamer/assets/video_1.mp4",
+        "rtsp://admin:12345@192.168.3.27/live"
     };
 
     GstElement* pipeline { gst_pipeline_new("pipeline") };
@@ -78,10 +74,11 @@ int main(int argc, char* argv[]) {
     GstElement* streammux { gst_element_factory_make("nvstreammux", "streammux") };
     g_object_set(
         G_OBJECT(streammux),
-        "batch-size", 1,
+        "batch-size", list_uris.size(),
         "batched-push-timeout", 40000,
         "width", 640,
         "height", 640,
+        "nvbuf-memory-type", 2, // 4: iGPU, 2; dGPU
         NULL
     );
 
@@ -90,7 +87,7 @@ int main(int argc, char* argv[]) {
         g_object_set(
             G_OBJECT(source), 
             "uri", list_uris[i_u].c_str(),
-            "file-loop", TRUE,
+            // "file-loop", TRUE,  // nếu bật, cần gửi eos đến mọi sink pad của nvstreammux
             "cudadec-memtype", 0,
             NULL
         );
@@ -114,14 +111,20 @@ int main(int argc, char* argv[]) {
 
     GstElement* converter { gst_element_factory_make("nvvideoconvert", "converter") };
     
-    GstElement* sink { gst_element_factory_make("nveglglessink", "sink") };
+    // GstElement* sink { gst_element_factory_make("nveglglessink", "sink") };
+    GstElement* encoder { gst_element_factory_make("nvv4l2h264enc", "encoder") };
+    GstElement* parser2 { gst_element_factory_make("h264parse", "parser2") };
+    GstElement* mp4mux { gst_element_factory_make("mp4mux", "mp4mux") };
+    GstElement* sink { gst_element_factory_make("filesink", "sink") };
+    g_object_set(G_OBJECT(sink), "location", "outputs/output.mp4", NULL);
 
     gst_bin_add_many(
         GST_BIN(pipeline),
         streammux,
         tiler,
         converter,
-        sink,
+        // sink,
+        encoder, parser2, mp4mux, sink,
         NULL
     );
 
@@ -130,7 +133,8 @@ int main(int argc, char* argv[]) {
         streammux,
         tiler,
         converter,
-        sink,
+        // sink,
+        encoder, parser2, mp4mux, sink,
         NULL
     );
     if (_link_success != TRUE) {
