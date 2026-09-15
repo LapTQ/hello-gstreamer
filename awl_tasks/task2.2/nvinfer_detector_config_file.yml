@@ -42,7 +42,7 @@ property:
   network-mode: 2
 
   infer-dims: 3;640;640
-  num-detected-classes: 1
+  num-detected-classes: 80
 
   custom-lib-path: ../../assets/libreyolo9/libnvdsinfer_custom_impl_Yolo.so
   model-engine-file: ../../assets/libreyolo9/LibreYOLO9t.onnx.fp16_max100.engine
@@ -51,4 +51,4 @@ property:
 class-attrs-all:
   topk: 20
   nms-iou-threshold: 0.5
-  pre-cluster-threshold: 0.8 # change it FPS maybe affected
+  pre-cluster-threshold: 0.2 # change it FPS maybe affected
