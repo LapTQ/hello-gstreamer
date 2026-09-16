@@ -23,7 +23,6 @@ static void link_to_nvstreammux(GstElement* source, GstPad* pad, GstPad* nvstrea
     if (GST_PAD_LINK_FAILED(_link_ret)) {
         g_printerr("Link nvurisrcbin -> nvstreammux error");
     }
-
 }
 
 
@@ -65,8 +64,8 @@ int main(int argc, char* argv[]) {
     gst_init(&argc, &argv);
 
     std::vector<std::string> list_uris {
-        "file:///run/media/laptq/data/workspace/hello-gstreamer/assets/sample_720p.h264",
-        // "rtsp://admin:12345@192.168.3.27/live"
+        "file:///home/laptq/hello-gstreamer/assets/sample_720p.h264",
+        "rtsp://admin:12345@192.168.3.27/live"
     };
 
     GstElement* pipeline { gst_pipeline_new("pipeline") };
@@ -114,7 +113,7 @@ int main(int argc, char* argv[]) {
     g_object_set(
         G_OBJECT(tiler),
         "width", 1280,
-        "height", 1280,
+        "height", 640,
         NULL
     );
 
@@ -128,12 +127,12 @@ int main(int argc, char* argv[]) {
         NULL
     );
     
-    GstElement* sink { gst_element_factory_make("nveglglessink", "sink") };
-    // GstElement* encoder { gst_element_factory_make("nvv4l2h264enc", "encoder") };
-    // GstElement* parser2 { gst_element_factory_make("h264parse", "parser2") };
-    // GstElement* mp4mux { gst_element_factory_make("mp4mux", "mp4mux") };
-    // GstElement* sink { gst_element_factory_make("filesink", "sink") };
-    // g_object_set(G_OBJECT(sink), "location", "outputs/output.mp4", NULL);
+    // GstElement* sink { gst_element_factory_make("nveglglessink", "sink") };
+    GstElement* encoder { gst_element_factory_make("nvv4l2h264enc", "encoder") };
+    GstElement* parser2 { gst_element_factory_make("h264parse", "parser2") };
+    GstElement* mp4mux { gst_element_factory_make("mp4mux", "mp4mux") };
+    GstElement* sink { gst_element_factory_make("filesink", "sink") };
+    g_object_set(G_OBJECT(sink), "location", "outputs/output.mp4", NULL);
 
     gst_bin_add_many(
         GST_BIN(pipeline),
@@ -142,8 +141,8 @@ int main(int argc, char* argv[]) {
         tiler,
         converter,
         nvosd,
-        sink,
-        // encoder, parser2, mp4mux, sink,
+        // sink,
+        encoder, parser2, mp4mux, sink,
         NULL
     );
 
@@ -154,8 +153,8 @@ int main(int argc, char* argv[]) {
         tiler,
         converter,
         nvosd,
-        sink,
-        // encoder, parser2, mp4mux, sink,
+        // sink,
+        encoder, parser2, mp4mux, sink,
         NULL
     );
     if (_link_success != TRUE) {

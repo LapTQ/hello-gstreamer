@@ -1,3 +1,5 @@
+set -e
+
 PATH__FILE__SRC=awl_tasks/task2.2/main.cpp
 PATH__DIR__OUTPUT=outputs
 mkdir -p $PATH__DIR__OUTPUT
@@ -21,7 +23,7 @@ if [ ! -f "$YOLO_LIB" ]; then
 fi
 
 # convert ONNX -> TRT
-WEIGHT=assets/libreyolo9/LibreYOLO9t.onnx.fp16_max100.engine
+WEIGHT=assets/libreyolo9/LibreYOLO9t.onnx.fp16_max100.trt
 if [ ! -f "$WEIGHT" ]; then
     echo "File $WEIGHT does not exist. Preparing to convert..."
     mkdir -p assets/libreyolo9
@@ -32,8 +34,8 @@ if [ ! -f "$WEIGHT" ]; then
     fi
 
     /usr/src/tensorrt/bin/trtexec \
-        --onnx=$WEIGHT \
-        --saveEngine=assets/libreyolo9/LibreYOLO9t.onnx.fp16_max100.engine \
+        --onnx=assets/libreyolo9/LibreYOLO9t.onnx \
+        --saveEngine=$WEIGHT \
         --memPoolSize=workspace:6400 \
         --tacticSources=-cublasLt,+cublas \
         --sparsity=disable --verbose \
