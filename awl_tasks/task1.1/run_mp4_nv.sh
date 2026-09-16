@@ -1,4 +1,4 @@
-IN_FILE=/home/laptq/hello-gstreamer/assets/video_1.mp4
+IN_FILE=assets/video_1.mp4
 OUT_DIR=outputs
 
 mkdir -p $OUT_DIR
