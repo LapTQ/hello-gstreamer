@@ -64,8 +64,9 @@ int main(int argc, char* argv[]) {
     gst_init(&argc, &argv);
 
     std::vector<std::string> list_uris {
-        "file:///home/laptq/hello-gstreamer/assets/sample_720p.h264",
-        "rtsp://admin:12345@192.168.3.27/live"
+        // "file:///home/laptq/hello-gstreamer/assets/sample_720p.h264",
+        "rtsp://admin:12345@192.168.3.26/live",
+        "rtsp://admin:12345@192.168.3.21/live"
     };
 
     GstElement* pipeline { gst_pipeline_new("pipeline") };
@@ -74,9 +75,9 @@ int main(int argc, char* argv[]) {
     g_object_set(
         G_OBJECT(streammux),
         "batch-size", list_uris.size(),
-        "batched-push-timeout", 40000,
         "width", 640,
         "height", 640,
+        "batched-push-timeout", 40000,
         "nvbuf-memory-type", 2, // 4: iGPU, 2; dGPU
         NULL
     );
