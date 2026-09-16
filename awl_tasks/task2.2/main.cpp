@@ -107,7 +107,16 @@ int main(int argc, char* argv[]) {
         NULL
     );      // 1 vài thuộc tính trong file config có thể được ghi đè thông qua Gst Properties
 
-    // GstElement* tracker { gst_element_factory_make("nvtracker", "tracker") };
+    GstElement* tracker { gst_element_factory_make("nvtracker", "tracker") };
+    g_object_set(
+        G_OBJECT(tracker),
+        "tracker-width", 640,
+        "tracker-height", 640,
+        "gpu-id", 0,
+        "ll-lib-file", "/opt/nvidia/deepstream/deepstream/lib/libnvds_nvmultiobjecttracker.so",
+        "ll-config-file", "/opt/nvidia/deepstream/deepstream/samples/configs/deepstream-app/config_tracker_NvDCF_perf.yml",
+        NULL
+    );
 
     GstElement* tiler { gst_element_factory_make("nvmultistreamtiler", "tiler") };
     g_object_set(
@@ -138,6 +147,7 @@ int main(int argc, char* argv[]) {
         GST_BIN(pipeline),
         streammux,
         detector,
+        tracker,
         tiler,
         converter,
         nvosd,
@@ -150,6 +160,7 @@ int main(int argc, char* argv[]) {
     _link_success = gst_element_link_many(
         streammux,
         detector,
+        tracker,
         tiler,
         converter,
         nvosd,
