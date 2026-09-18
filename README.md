@@ -1,25 +1,23 @@
-# Deepstream
+## Environment
 
-- Những phần nào trong Gstreamer liên quan?
+Clone and navigate to the repo
+```
+git clone https://github.com/lap-tran_awl/hello-gstreamer
+cd hello-gstreamer
+```
 
-
-
-
-
-
-
-
-
-
-
-
-## Nguồn Gstreamer
-
-- https://gstreamer.freedesktop.org/documentation/application-development/introduction/gstreamer.html?gi-language=python
-- https://viblo.asia/p/tim-hieu-ve-gstreamer-WAyK86OWlxX
-
-
-## Nguồn Deepstream
-
-- https://docs.nvidia.com/metropolis/deepstream/dev-guide/text/DS_Overview.html
-- https://hackmd.io/@congphu/SkN6RIXY_#2-H%C6%B0%E1%BB%9Bng-d%E1%BA%ABn-%C4%91%E1%BB%8Dc-t%C3%A0i-li%E1%BB%87u-c%E1%BB%A7a-Deepstream
+Start docker:
+```bash
+docker run \
+    -it \
+    -d \
+    -v "$(pwd):/hello-gstreamer" \
+    --workdir /hello-gstreamer \
+    --gpus all \
+    --runtime nvidia \
+    -e NVIDIA_DRIVER_CAPABILITIES=all \
+    -e NVIDIA_VISIBLE_DEVICES=all \
+    --privileged \
+    --name laptq_ds \
+    nvcr.io/nvidia/deepstream:7.0-triton-multiarch
+```
