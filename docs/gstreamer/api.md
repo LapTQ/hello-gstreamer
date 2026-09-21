@@ -305,7 +305,39 @@ gst_pad_add_probe (
     GDestroyNotify destroy_data
 )
 ```
-Gắn và kích hoạt hàm callback mỗi khi dòng dữ liệu đi qua Pad ở trạng thái cụ thể (probe type).
+Gắn và kích hoạt hàm callback mỗi khi dòng dữ liệu đi qua Pad ở trạng thái cụ thể (probe type). Thuật ngữ "trạng thái" trong tài liệu ở đây khá dễ gây hiểu lầm. Nó không chỉ các trạng thái như `NULL`, `PLAYING` của Element. Ở đây, nó ám chỉ tình trạng của luồng dữ liệu (flow state) đang đi qua cái cổng (Pad) đó. VD:
+* `GST_PAD_PROBE_TYPE_BUFFER`: khi có 1 buffer đi qua Pad.
+* `GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM`: khi có 1 sự kiện xuôi dòng (từ Src -> Sink), ví dụ: sự kiện EOS.
+* `GST_PAD_PROBE_TYPE_IDLE`: khi Pad này rảnh rỗi (không có luồng dữ liệu hay sự kiện nào đang kẹt ở giữa cổng).
+
+Trong đó `callback` là:
+```C
+GstPadProbeReturn
+(*GstPadProbeCallback) (
+    GstPad * pad,
+    GstPadProbeInfo * info,
+    gpointer user_data
+)
+```
+* `GstPadProbeInfo *info` là "gói hàng" đang đi qua cổng:
+    ```C
+    struct _GstPadProbeInfo
+    {
+        GstPadProbeType type;   // đôi khi bạn đặt một probe bắt cả Buffer lẫn Event. Nhờ có type, bạn dùng lệnh if để rẽ nhánh xử lý cho đúng.
+        gulong id;      // ID của chính cái probe này (trùng với con số được trả về lúc bạn gọi gst_pad_add_probe). Ứng dụng cực hay: Giả sử bạn chỉ muốn bắt đúng 1 khung hình đầu tiên rồi thôi không nghe lén nữa để tiết kiệm CPU. Bạn có thể gọi luôn hàm gỡ bỏ máy nghe lén ngay bên trong callback bằng ID này: gst_pad_remove_probe(pad, info->id).
+        gpointer data;  // đây chính là lõi dữ liệu
+        guint64 offset;
+        guint size;
+    }
+    ```
+* `GstPadProbeReturn`:
+    * `GST_PAD_PROBE_OK`: Mọi thứ bình thường. Cho phép gói dữ liệu tiếp tục chảy xuống hạ nguồn.
+    * `GST_PAD_PROBE_DROP`: Tiêu hủy ngay lập tức gói hàng này. Dữ liệu sẽ không bao giờ đến được Element tiếp theo.
+    * `GST_PAD_PROBE_REMOVE`: Hoàn thành nhiệm vụ, hãy gỡ bỏ cái probe này ra khỏi Pad vĩnh viễn, đồng thời cho phép gói dữ liệu hiện tại đi qua bình thường.
+    * ...
+
+
+
 
 Một số phương thức khác có thể hữu ích:
 * `gst_pad_remove_probe`
