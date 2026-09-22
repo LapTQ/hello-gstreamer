@@ -1,6 +1,6 @@
 set -e
 
-PATH__FILE__SRC=awl_tasks/task3.1/main.cpp
+PATH__FILE__SRC=awl_tasks/task3.3/main.cpp
 PATH__DIR__OUTPUT=outputs
 mkdir -p $PATH__DIR__OUTPUT
 

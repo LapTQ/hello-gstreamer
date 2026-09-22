@@ -28,11 +28,6 @@ if [ ! -f "$WEIGHT" ]; then
     echo "File $WEIGHT does not exist. Preparing to convert..."
     mkdir -p assets/libreyolo9
 
-    if [ ! -d "outputs/DeepStream-Yolo" ]; then
-        echo "Cloning DeepStream-Yolo into outputs/..."
-        git clone https://github.com/marcoslucianops/DeepStream-Yolo.git outputs/DeepStream-Yolo
-    fi
-
     /usr/src/tensorrt/bin/trtexec \
         --onnx=assets/libreyolo9/LibreYOLO9t.onnx \
         --saveEngine=$WEIGHT \
