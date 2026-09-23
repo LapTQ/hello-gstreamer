@@ -134,7 +134,7 @@ public:
             std::abort();
         }
 
-        this->_thread = std::thread { &FileRepo::_pop_and_write, this };
+        this->_thread = std::thread { &FileRepo::_pop_and_write, this };    // khởi động thread pop từ queue và lưu vào file
     }
 
     void add(Object obj) {
