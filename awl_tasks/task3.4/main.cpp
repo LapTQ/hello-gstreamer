@@ -92,21 +92,29 @@ class TsQueue {
 private:
     std::queue<T> _queue {};
     std::mutex _mutext {};
-    std::condition_variable _cond_var {};
 
 public:
 
     void push(T item) {
-        {
-            std::lock_guard<std::mutex> lock{ this->_mutext };
-            this->_queue.push(item);
-        }   // Hết scope tự động mở khóa
+        std::lock_guard<std::mutex> lock{ this->_mutext };
+        this->_queue.push(item);
+    }   // Hết scope tự động mở khóa
 
-        this->_cond_var.notify_one();
+    bool pop(T& item) {
+        std::lock_guard<std::mutex> lock{ this->_mutext };
+
+        if (this->_queue.empty()) {
+            return false;
+        }
+        item = this->_queue.front();
+        this->_queue.pop();
+
+        return true;
     }
 
-    T pop() {
-        throw std::logic_error("Chua implement");
+    bool is_empty() {
+        std::lock_guard<std::mutex> lock{ this->_mutext };
+        return this->_queue.empty();
     }
 };
 
@@ -122,30 +130,43 @@ public:
         this->_outfile = std::ofstream{ file_path, std::ios::out };
 
         if(!this->_outfile.is_open()) {
-            g_printerr("Không thể mở file!\n");
+            g_printerr("Cannot open output file!\n");
             std::abort();
         }
 
-        this->_thread = std::thread { this->_pop_and_write };
+        this->_thread = std::thread { &FileRepo::_pop_and_write, this };
     }
 
     void add(Object obj) {
-        throw std::logic_error("chua implement");
+        this->_queue.push(obj);
     }
 
     void close() {
-        throw std::logic_error("chua implement");
-
-        // pop not neu co, dung thread, dong file
         this->_stop = true;
         this->_thread.join();
         this->_outfile.close();
-        g_print("Đã ghi xong file!\n");
+        g_print("Output file repo saved!\n");
     }
 
 private:
-    static void _pop_and_write() {
-        throw std::logic_error("chua implement");
+    void _pop_and_write() {
+        Object obj {};
+        char line[128] {};
+        while (!this->_stop or !this->_queue.is_empty()) {
+            bool found = this->_queue.pop(obj);
+            
+            if (!found) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                continue;
+            }
+
+            std::snprintf(
+                line, sizeof(line),
+                "{\"track_id\": %lu, \"frame_num\": %d, \"x1\": %d, \"y1\": %d, \"x2\": %d, \"y2\": %d}\n",
+                obj.track_id, obj.frame_num, obj.x1, obj.y1, obj.x2, obj.y2
+            );
+            this->_outfile << line;
+        }
     }
 };
 
@@ -187,7 +208,7 @@ int main(int argc, char* argv[]) {
     GstElement* source { gst_element_factory_make("nvurisrcbin", "source") };
     g_object_set(
         G_OBJECT(source), 
-        "uri", "file:///home/laptq/hello-gstreamer/assets/sample_720p.h264",
+        "uri", "file:///run/media/laptq/data/workspace/hello-gstreamer/assets/sample_720p.h264",
         "cudadec-memtype", 0,
         NULL
     );
@@ -221,6 +242,9 @@ int main(int argc, char* argv[]) {
         NULL
     );
 
+    GstElement* nvdslogger { gst_element_factory_make ("nvdslogger", "nvdslogger") };
+    g_object_set(G_OBJECT(nvdslogger), "fps-measurement-interval-sec", 1, NULL);
+
     GstElement* converter { gst_element_factory_make("nvvideoconvert", "converter") };
 
     GstElement* nvosd { gst_element_factory_make("nvdsosd", "nvosd") };
@@ -246,6 +270,7 @@ int main(int argc, char* argv[]) {
         streammux,
         detector,
         tracker,
+        nvdslogger,
         converter,
         nvosd,
         // sink,
@@ -263,6 +288,7 @@ int main(int argc, char* argv[]) {
         streammux,
         detector,
         tracker,
+        nvdslogger,
         converter,
         nvosd,
         // sink,
