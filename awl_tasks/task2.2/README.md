@@ -16,4 +16,4 @@ bash awl_tasks/task2.2/run.sh
 
 `run.sh` automatically:
 1. Clones and builds `libnvdsinfer_custom_impl_Yolo.so` if not already present.
-2. Generate TensorRT engine `LibreYOLO9t.onnx.fp16_max100.engine` if not already present.
+2. Generate TensorRT engine `LibreYOLO9t.onnx.fp16_max100.trt` if not already present.
