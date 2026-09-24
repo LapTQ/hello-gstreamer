@@ -252,7 +252,7 @@ int main(int argc, char* argv[]) {
     GstElement* source { gst_element_factory_make("nvurisrcbin", "source") };
     g_object_set(
         G_OBJECT(source), 
-        "uri", "file:///home/laptq/hello-gstreamer/assets/sample_720p.h264",
+        "uri", "file:///hello-gstreamer/assets/sample_720p.h264",
         "cudadec-memtype", 0,
         NULL
     );

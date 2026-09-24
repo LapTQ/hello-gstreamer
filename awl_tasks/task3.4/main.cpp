@@ -98,6 +98,7 @@ public:
     void push(T item) {
         std::lock_guard<std::mutex> lock{ this->_mutext };
         this->_queue.push(item);
+        // g_print("Queue size: %lu\n", this->_queue.size());
     }   // Hết scope tự động mở khóa
 
     bool pop(T& item) {
@@ -208,7 +209,7 @@ int main(int argc, char* argv[]) {
     GstElement* source { gst_element_factory_make("nvurisrcbin", "source") };
     g_object_set(
         G_OBJECT(source), 
-        "uri", "file:///run/media/laptq/data/workspace/hello-gstreamer/assets/sample_720p.h264",
+        "uri", "rtsp://admin:12345@192.168.3.26/live",
         "cudadec-memtype", 0,
         NULL
     );

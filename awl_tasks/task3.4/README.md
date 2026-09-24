@@ -11,8 +11,8 @@ This pipeline has the following components:
 bash awl_tasks/task3.4/run.sh
 ```
 
-- **Current input:** Video file configured in `main.cpp`:
-  - `file:///run/media/laptq/data/workspace/hello-gstreamer/assets/sample_720p.h264`
+- **Current input:** configured in `main.cpp`:
+  - `rtsp://admin:12345@192.168.3.26/live`
 - **Outputs:**
   - Video file: `outputs/output.mp4` (video overlaying bounding boxes, track IDs, and class labels).
   - Metadata file: `outputs/repo.jsonl` (tracking records in JSON Lines format: `{"track_id": ..., "frame_num": ..., "x1": ..., "y1": ..., "x2": ..., "y2": ...}`).
@@ -22,7 +22,7 @@ bash awl_tasks/task3.4/run.sh
 
 To compare the pipeline's FPS **with vs. without saving to file**, you can enable/disable this line:
   ```cpp
-  gst_pad_add_probe(tracker_srcpad, GST_PAD_PROBE_TYPE_BUFFER, save_to_repo, &repo, NULL);    // line 309
+  gst_pad_add_probe(tracker_srcpad, GST_PAD_PROBE_TYPE_BUFFER, save_to_repo, &repo, NULL);    // line 310
   ```
 
 `run.sh` automatically:
