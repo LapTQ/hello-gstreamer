@@ -1,0 +1,54 @@
+################################################################################
+# SPDX-FileCopyrightText: Copyright (c) 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: LicenseRef-NvidiaProprietary
+#
+# NVIDIA CORPORATION, its affiliates and licensors retain all intellectual
+# property and proprietary rights in and to this material, related
+# documentation and any modifications thereto. Any use, reproduction,
+# disclosure or distribution of this material and related documentation
+# without an express license agreement from NVIDIA CORPORATION or
+# its affiliates is strictly prohibited.
+################################################################################
+
+property:
+  gpu-id: 0
+  net-scale-factor: 0.0039215697906911372
+  model-color-format: 0
+  maintain-aspect-ratio: 1
+  network-input-order: 0
+  labelfile-path: ../../assets/libreyolo9/labels.txt
+  batch-size: 2
+  interval: 0
+  gie-unique-id: 1
+  symmetric-padding: 1
+  scaling-compute-hw: 0
+  scaling-filter: 1
+  offsets: 0;0;0
+
+  network-type: 0
+
+  # Primary 1, Secondary 2
+  process-mode: 1
+
+  # 2=NMS , 4=No , 3=DBSCAN + NMS
+  # Yolo_on_Jetson plugin version needs NMS post processing
+  cluster-mode: 2
+
+  # custom parser of nvinfer yolo plugin
+  parse-bbox-func-name: NvDsInferParseYolo
+  engine-create-func-name: NvDsInferYoloCudaEngineGet
+
+  # 0=FP32 , 1=INT8, 2=FP16
+  network-mode: 2
+
+  infer-dims: 3;640;640
+  num-detected-classes: 80
+
+  custom-lib-path: ../../assets/libreyolo9/libnvdsinfer_custom_impl_Yolo.so
+  model-engine-file: ../../assets/libreyolo9/LibreYOLO9t.onnx.fp16_max100.trt
+
+
+class-attrs-all:
+  topk: 20
+  nms-iou-threshold: 0.5
+  pre-cluster-threshold: 0.2
