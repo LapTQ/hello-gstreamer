@@ -1,30 +1,43 @@
 This pipeline has the following components:
-- Video input: `nvurisrcbin` + `nvstreammux`
+- RTSP input with auto-reconnection: `nvurisrcbin` (`rtsp-reconnect-attempts`, `rtsp-reconnect-interval`)
 - YOLOv9 object detection: `nvinfer`
 - Tracking: `nvtracker`
-- Performance / FPS measurement: `nvdslogger` (measures and prints FPS every 1 second)
-- Asynchronous metadata logging: Custom buffer probe on `tracker` src pad writing to file via a dedicated background thread
+- Performance measurement: `nvdslogger` (measures and prints FPS every 1 second)
+- Timestamp OSD probe: Custom buffer probe on `nvosd` sink pad injecting current date & time text (`NvDsDisplayMeta`) onto each frame
 - Visualization: `nvvideoconvert` + `nvdsosd`
 
 #### How to run
 ```bash
-bash awl_tasks/task3.4/run.sh
+bash awl_tasks/task4.3/run.sh
 ```
 
-- **Current input:** configured in `main.cpp`:
+- **Current input:** RTSP stream configured in `main.cpp`:
   - `rtsp://admin:12345@192.168.3.26/live`
-- **Outputs:**
-  - Video file: `outputs/output.mp4` (video overlaying bounding boxes, track IDs, and class labels).
-  - Metadata file: `outputs/repo.jsonl` (tracking records in JSON Lines format: `{"track_id": ..., "frame_num": ..., "x1": ..., "y1": ..., "x2": ..., "y2": ...}`).
-  - Console: Real-time FPS logs printed by `nvdslogger`.
-
-#### FPS Measurement & File Saving Comparison
-
-To compare the pipeline's FPS **with vs. without saving to file**, you can enable/disable this line:
-  ```cpp
-  gst_pad_add_probe(tracker_srcpad, GST_PAD_PROBE_TYPE_BUFFER, save_to_repo, &repo, NULL);    // line 310
-  ```
+- **Output:** `outputs/output.mp4` *(Note: RTSP stream runs indefinitely; press `Ctrl + C` to cleanly stop and finalize the video).*
 
 `run.sh` automatically:
 1. Clones and builds `libnvdsinfer_custom_impl_Yolo.so` if not already present.
 2. Generates TensorRT engine `LibreYOLO9t.onnx.fp16_max100.trt` if not already present.
+
+---
+
+### Simulating Network Disconnection & Auto-Reconnection
+
+#### 1. Install `iptables`
+Inside Docker container:
+```bash
+apt update && apt install -y iptables
+```
+
+#### 2. Simulate Network Drop (Block Camera Packets)
+Add a firewall rule to drop all incoming packets from the camera IP:
+```bash
+iptables -A INPUT -s 192.168.3.26 -j DROP
+```
+
+#### 3. Restore Network Connection
+Delete the drop rule to restore traffic from the camera:
+```bash
+iptables -D INPUT -s 192.168.3.26 -j DROP
+```
+
