@@ -44,12 +44,19 @@ void link_to_nvstreammux(GstElement* source, GstPad* pad, GstPad* nvstreammux_si
 
 
 gboolean send_eos_to_nvstreammux(gpointer streammux){
-    g_print("Sending EOS to pipeline...\n");
-    GstPad* sinkpad { gst_element_get_static_pad((GstElement*)streammux, "sink_0") };
-    if (sinkpad) {
+    g_print("Sending EOS to streammux...\n");
+    
+    // Lặp qua tất cả các sink pad (sink_0, sink_1, ...) của streammux
+    for (int i = 0; ; ++i) {
+        std::string pad_name = "sink_" + std::to_string(i);
+        GstPad* sinkpad { gst_element_get_static_pad((GstElement*)streammux, pad_name.c_str()) };
+        if (!sinkpad) {
+            break; // Đã duyệt hết các pad
+        }
         gst_pad_send_event(sinkpad, gst_event_new_eos());
         gst_object_unref(sinkpad);
     }
+
     return G_SOURCE_REMOVE;
 }
 
@@ -81,36 +88,96 @@ gboolean handle_bus_message(GstBus* bus, GstMessage* msg, gpointer loop) {
 }
 
 
-GstPadProbeReturn draw_time_on_frame(GstPad* pad, GstPadProbeInfo* info, gpointer nothing) {
-    GstBuffer* buffer { (GstBuffer*)info->data };
-    NvDsBatchMeta* batch_meta { gst_buffer_get_nvds_batch_meta(buffer) };
+GstElement* create_multi_source_bin(const std::string& bin_name, const std::vector<std::string>& list_uris, int width, int height, bool live_source) {
 
-    NvDsFrameMeta* frame_meta {};
-    for (GList* i_frame { batch_meta->frame_meta_list }; i_frame != NULL; i_frame = i_frame->next) {
-        frame_meta = (NvDsFrameMeta*)i_frame->data;
-        
-        std::time_t t { std::time(nullptr) };
-        std::tm tm { *std::localtime(&t) };
-        char time_str[64] {};
-        std::strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", &tm);
-        
-        NvDsDisplayMeta* display_meta { nvds_acquire_display_meta_from_pool(batch_meta) };
-        display_meta->num_labels = 1;
-        NvOSD_TextParams* text_params = &display_meta->text_params[0];
-        text_params->x_offset = 10;
-        text_params->y_offset = 10;
-        text_params->display_text = (char*)g_malloc0(64);
-        snprintf(text_params->display_text, 64, "%s", time_str);
-        
-        text_params->font_params.font_name =  (char*)g_malloc0(64);
-        snprintf(text_params->font_params.font_name, 64, "Serif");
-        text_params->font_params.font_size = 30;
-        text_params->font_params.font_color = {0.0, 1.0, 0.0, 1.0};
+    GstElement* bin { gst_pipeline_new(bin_name.c_str()) };
 
-        nvds_add_display_meta_to_frame(frame_meta, display_meta);
+    GstElement* streammux { gst_element_factory_make("nvstreammux", "streammux") };
+    g_object_set(
+        G_OBJECT(streammux),
+        "live-source", live_source ? 1 : 0,
+        "batch-size", list_uris.size(),
+        "width", width,
+        "height", height,
+        "batched-push-timeout", 40000,
+        "nvbuf-memory-type", 2, // 4: iGPU, 2; dGPU
+        NULL
+    );
+
+    for (std::size_t i_u {0}; i_u < list_uris.size(); ++i_u) {
+        GstElement* source { gst_element_factory_make("nvurisrcbin", ("source" + std::to_string(i_u)).c_str())};
+        g_object_set(
+            G_OBJECT(source), 
+            "uri", list_uris[i_u].c_str(),
+            "cudadec-memtype", 0,
+            // reconnect
+            "rtsp-reconnect-attempts", -1,
+            "rtsp-reconnect-interval", 15,
+
+            NULL
+        );
+        
+        GstPad* sinkpad { gst_element_request_pad_simple(streammux, ("sink_" + std::to_string(i_u)).c_str())};
+
+        g_signal_connect(source, "pad-added", G_CALLBACK(link_to_nvstreammux), sinkpad);
+
+        gst_bin_add(GST_BIN(bin), source);
+
+        gst_object_unref(sinkpad);
     }
 
-    return GST_PAD_PROBE_OK;
+    gst_bin_add(GST_BIN(bin), streammux);
+
+    GstPad* streammux_src_pad { gst_element_get_static_pad(streammux, "src") };
+    GstPad* ghost_pad { gst_ghost_pad_new("src", streammux_src_pad) };
+    gst_element_add_pad(bin, ghost_pad);
+    gst_object_unref(streammux_src_pad);
+
+    // đăng ký bắt sự kiện interrupt
+    g_unix_signal_add(SIGINT, send_eos_to_nvstreammux, streammux); // g_unix_signal_add hoạt động theo hàng đợi. Khi Ctrl-C, hàm send_eos_to_nvstreammux không chạy ngay mà chờ đến lượt được GMainLoop xử lý. 
+
+    return bin;
+}
+
+
+GstElement* create_osd(int width, int height) {
+    GstElement* tiler { gst_element_factory_make("nvmultistreamtiler", "tiler") };
+    g_object_set(
+        G_OBJECT(tiler),
+        "width", width,
+        "height", height,
+        NULL
+    );
+
+    GstElement* converter { gst_element_factory_make("nvvideoconvert", "converter") };
+
+    GstElement* nvosd { gst_element_factory_make("nvdsosd", "nvosd") };
+    g_object_set(
+        G_OBJECT(nvosd),
+        "process-mode", 1,
+        "display-text", 1,
+        NULL
+    );
+
+    GstElement* bin { gst_pipeline_new("osd_bin") };
+    gst_bin_add_many(GST_BIN(bin), tiler, converter, nvosd, NULL);
+    if (!gst_element_link_many(tiler, converter, nvosd, NULL)) {
+        g_printerr("Failed to link elements in osd_bin\n");
+        gst_object_unref(bin);
+        return nullptr;
+    }
+
+    GstPad* tiler_sink_pad { gst_element_get_static_pad(tiler, "sink") };
+    GstPad* ghost_pad { gst_ghost_pad_new("sink", tiler_sink_pad) };
+    gst_element_add_pad(bin, ghost_pad);
+    gst_object_unref(tiler_sink_pad);
+
+    GstPad* nvosd_src_pad { gst_element_get_static_pad(nvosd, "src") };
+    GstPad* ghost_src_pad { gst_ghost_pad_new("src", nvosd_src_pad) };
+    gst_element_add_pad(bin, ghost_src_pad);
+    gst_object_unref(nvosd_src_pad);
+
+    return bin;
 }
 
 
@@ -138,37 +205,49 @@ GstElement* create_mp4_filesink(const std::string& bin_name, const std::string& 
     return bin;
 }
 
+
+class AppBus {
+
+public:
+    void on_new_buffer(GstBuffer* buffer) {
+
+    }
+};
+
+
+GstPadProbeReturn publish_gstbuffer(GstPad* pad, GstPadProbeInfo* info, gpointer app_bus_) {
+    AppBus* app_bus { (AppBus*)app_bus_ };
+    GstBuffer* buffer { (GstBuffer*)info->data };
+
+    app_bus->on_new_buffer(buffer);
+
+    return GST_PAD_PROBE_OK;
+}
+
+
 int main(int argc, char* argv[]) {
     gst_init(&argc, &argv);
 
-    GstElement* source { gst_element_factory_make("nvurisrcbin", "source") };
-    g_object_set(
-        G_OBJECT(source), 
-        "uri", "rtsp://admin:12345@192.168.3.26/live",
-        "cudadec-memtype", 0,
+    std::vector<std::string> list_uris {
+        // "file:///home/laptq/hello-gstreamer/assets/sample_720p.h264",
+        "rtsp://admin:12345@192.168.3.26/live",
+        "rtsp://admin:12345@192.168.3.21/live"
+    };
 
-        // reconnect
-        "rtsp-reconnect-attempts", -1,
-        "rtsp-reconnect-interval", 15,
-        NULL
-    );
-    
-    GstElement* streammux { gst_element_factory_make("nvstreammux", "streammux") };
-    g_object_set(
-        G_OBJECT(streammux),
-        "live-source", 1,
-        "batch-size", 1,
-        "width", 960,
-        "height", 640,
-        "batched-push-timeout", 40000,
-        "nvbuf-memory-type", 2, // 4: iGPU, 2; dGPU
-        NULL
-    );
+    GstElement* source { 
+        create_multi_source_bin(
+            "multi_source_bin", 
+            list_uris, 
+            960, 
+            640, 
+            true
+        ) 
+    };
 
     GstElement* detector { gst_element_factory_make("nvinfer", "detector") };
     g_object_set(
         G_OBJECT(detector),
-        "config-file-path", "awl_tasks/task2.2/nvinfer_detector_config_file.yml",
+        "config-file-path", "awl_tasks/task4.4/nvinfer_detector_config_file.yml",
         NULL
     );      // 1 vài thuộc tính trong file config có thể được ghi đè thông qua Gst Properties
 
@@ -183,18 +262,18 @@ int main(int argc, char* argv[]) {
         NULL
     );
 
+    GstElement* person_view_classifier { gst_element_factory_make("nvinfer", "person_view_classifier") };
+    g_object_set(
+        G_OBJECT(person_view_classifier),
+        "config-file-path", "awl_tasks/task4.4/nvinfer_person_view_config_file.yml",
+        NULL
+    );
+
     GstElement* nvdslogger { gst_element_factory_make ("nvdslogger", "nvdslogger") };
     g_object_set(G_OBJECT(nvdslogger), "fps-measurement-interval-sec", 1, NULL);
 
-    GstElement* converter { gst_element_factory_make("nvvideoconvert", "converter") };
-
-    GstElement* nvosd { gst_element_factory_make("nvdsosd", "nvosd") };
-    g_object_set(
-        G_OBJECT(nvosd),
-        "process-mode", 1,
-        "display-text", 1,
-        NULL
-    );
+    
+    GstElement* osd { create_osd(1920, 640) };
     
     // GstElement* sink { gst_element_factory_make("nveglglessink", "sink") };
     GstElement* sink { create_mp4_filesink("mp4_filesink_bin", "outputs/output.mp4") };
@@ -205,29 +284,21 @@ int main(int argc, char* argv[]) {
     gst_bin_add_many(
         GST_BIN(pipeline),
         source,
-        streammux,
         detector,
         tracker,
         nvdslogger,
-        converter,
-        nvosd,
+        osd,
         sink,
         NULL
     );
 
-    // link source -> streammux
-    GstPad* sinkpad { gst_element_request_pad_simple(streammux, "sink_0") };
-    g_signal_connect(source, "pad-added", G_CALLBACK(link_to_nvstreammux), sinkpad);
-    gst_object_unref(sinkpad);
-
      gboolean _link_success { false };
     _link_success = gst_element_link_many(
-        streammux,
+        source,
         detector,
         tracker,
         nvdslogger,
-        converter,
-        nvosd,
+        osd,
         sink,
         NULL
     );
@@ -237,12 +308,10 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    // đăng ký bắt sự kiện interrupt
-    g_unix_signal_add(SIGINT, send_eos_to_nvstreammux, streammux); // g_unix_signal_add hoạt động theo hàng đợi. Khi Ctrl-C, hàm send_eos_to_nvstreammux không chạy ngay mà chờ đến lượt được GMainLoop xử lý. 
-
-    GstPad* osd_sink_pad { gst_element_get_static_pad(nvosd, "sink") };
-    gst_pad_add_probe(osd_sink_pad, GST_PAD_PROBE_TYPE_BUFFER, draw_time_on_frame, NULL, NULL);
-    g_object_unref(osd_sink_pad);
+    AppBus app_bus {};
+    GstPad* tracker_srcpad { gst_element_get_static_pad(tracker, "src") };
+    gst_pad_add_probe(tracker_srcpad, GST_PAD_PROBE_TYPE_BUFFER, publish_gstbuffer, &app_bus, NULL);
+    g_object_unref(tracker_srcpad);
 
     GstStateChangeReturn _change_state { gst_element_set_state(pipeline, GST_STATE_PLAYING) };
     if (_change_state == GST_STATE_CHANGE_FAILURE) {
