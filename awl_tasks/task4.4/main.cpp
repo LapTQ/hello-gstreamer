@@ -247,7 +247,7 @@ public:
                     }
                 }
 
-                obj_meta_rescaled = nvds_acquire_obj_meta_from_pool(batch_meta);
+                obj_meta_rescaled = nvds_acquire_obj_meta_from_pool(batch_meta);    // tạo object meta ảo
 
                 float x1 { obj_meta->rect_params.left };
                 float y1 { obj_meta->rect_params.top };
@@ -266,7 +266,7 @@ public:
 
                 obj_meta_rescaled->unique_component_id = obj_meta->unique_component_id;
 
-                obj_meta_rescaled->class_id = obj_meta->class_id + this->_class_offset;     // tạo class ảo
+                obj_meta_rescaled->class_id = obj_meta->class_id + this->_class_offset;     // class ảo
                 obj_meta_rescaled->rect_params.left = x1;
                 obj_meta_rescaled->rect_params.top = y1;
                 obj_meta_rescaled->rect_params.width = w;
@@ -862,13 +862,15 @@ int main(int argc, char* argv[]) {
     GstPad* actionstate_sinkpad { gst_element_get_static_pad(action_state_classifier, "sink") };
     gst_pad_add_probe(actionstate_sinkpad, GST_PAD_PROBE_TYPE_BUFFER, preprocess_for_actionstate, &actionstate_processor, NULL);
     g_object_unref(actionstate_sinkpad);
+    // bỏ gắn probe này nếu muốn vẽ lên osd
     GstPad* actionstate_srcpad { gst_element_get_static_pad(action_state_classifier, "src") };
     gst_pad_add_probe(actionstate_srcpad, GST_PAD_PROBE_TYPE_BUFFER, postprocess_for_actionstate, &actionstate_processor, NULL);
     g_object_unref(actionstate_srcpad);
 
     DetectionParser detection_parser {
         std::unordered_map<gint, DetectionClassType> {
-            {0, DetectionClassType::PERSON}, // class_index =
+            {0, DetectionClassType::PERSON},
+            // {1000, DetectionClassType::PERSON},  // bật nếu muốn vẽ lên osd
         } 
     }; // class_index = 0 (person)
     PersonViewParser person_view_parser {
