@@ -59,7 +59,24 @@ if [ ! -f "$WEIGHT" ]; then
         --fp16
 fi
 
-exit
+
+# convert ActionState ONNX -> TRT
+WEIGHT=assets/action_state/best-epoch=62-val_f1=0.571.ckpt.onnx.fp16_max100.trt
+if [ ! -f "$WEIGHT" ]; then
+    echo "File $WEIGHT does not exist. Preparing to convert..."
+    mkdir -p assets/action_state
+
+    /usr/src/tensorrt/bin/trtexec \
+        --onnx=assets/action_state/best-epoch=62-val_f1=0.571.ckpt.onnx \
+        --saveEngine=$WEIGHT \
+        --memPoolSize=workspace:6400 \
+        --tacticSources=-cublasLt,+cublas \
+        --sparsity=disable --verbose \
+        --minShapes=input:1x3x224x224 \
+        --optShapes=input:10x3x224x224 \
+        --maxShapes=input:100x3x224x224 \
+        --fp16
+fi
 
 # export GST_DEBUG=2
 

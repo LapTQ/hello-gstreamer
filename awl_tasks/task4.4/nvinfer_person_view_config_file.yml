@@ -10,7 +10,7 @@ property:
   # 0=FP32 and 1=INT8 mode
   network-mode: 2
 
-  process-mode: 2
+  process-mode: 2   # 1=Primary 2=Secondary
   model-color-format: 0
   gie-unique-id: 2
   operate-on-gie-id: 1

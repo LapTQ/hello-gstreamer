@@ -1,0 +1,32 @@
+
+property:
+  gpu-id: 0
+  net-scale-factor: 0.017429193899782137
+  offsets: 123.675;116.28;103.53
+  maintain-aspect-ratio: 1
+  symmetric-padding: 1
+
+  model-engine-file: ../../assets/action_state/best-epoch=62-val_f1=0.571.ckpt.onnx.fp16_max100.trt
+  batch-size: 16
+  # 0=FP32 and 1=INT8 mode
+  network-mode: 2
+
+  process-mode: 2   # 1=Primary 2=Secondary
+  model-color-format: 0
+  gie-unique-id: 3
+  operate-on-gie-id: 1
+  operate-on-class-ids: 1000
+  input-object-min-width: 0  
+  input-object-min-height: 0
+  # classifier-async-mode: 0
+  # classifier-threshold: 0.35
+
+  # secondary-reinfer-interval: 0
+  ## 0=Detector, 1=Classifier, 2=Segmentation, 100=Other
+  network-type: 100
+  # Enable tensor metadata output
+  output-tensor-meta: 1
+
+  scaling-filter: 0 # ref https://docs.nvidia.com/metropolis/deepstream/5.0/dev-guide/DeepStream_Development_Guide/baggage/group__ds__bbb.html#ga29da322f0c4f4ed65d19cc70471f54c0
+  scaling-compute-hw: 0
+  infer-dims: 3;224;224
