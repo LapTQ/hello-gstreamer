@@ -162,6 +162,11 @@ int main(int argc, char* argv[]) {
     };
     FakeObjectRepo fake_person_repo {};
     OutputParser parser { detection_parser, person_view_parser, action_state_parser, fake_person_repo };
+    GstPad* analytics_tap_srcpad { gst_element_get_static_pad(analytics_tap, "src") };
+    gst_pad_add_probe(analytics_tap_srcpad, GST_PAD_PROBE_TYPE_BUFFER, parse_pipeline_output, &parser, NULL);
+    g_object_unref(analytics_tap_srcpad);
+
+    // visualize OSD
     Visualizer visualizer { 
         fake_person_repo, 
         {
@@ -179,11 +184,6 @@ int main(int argc, char* argv[]) {
             {ActionStateType::NOT_HOLDING_PRODUCT, "Not hold product"},
         },
     };
-    GstPad* analytics_tap_srcpad { gst_element_get_static_pad(analytics_tap, "src") };
-    gst_pad_add_probe(analytics_tap_srcpad, GST_PAD_PROBE_TYPE_BUFFER, parse_pipeline_output, &parser, NULL);
-    g_object_unref(analytics_tap_srcpad);
-
-    // visualize OSD
     GstPad* osd_sinkpad { gst_element_get_static_pad(osd, "sink") };
     gst_pad_add_probe(osd_sinkpad, GST_PAD_PROBE_TYPE_BUFFER, visualize, &visualizer, NULL);
     g_object_unref(osd_sinkpad);
