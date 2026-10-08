@@ -1,24 +1,25 @@
 #ifndef VISUALIZE_UTILS_H
 #define VISUALIZE_UTILS_H
 
-#include "infra/repo/repo.h"
 #include "domain/entities/object.h"
 #include "domain/entities/person_view_type.h"
 #include "domain/entities/action_state_type.h"
+#include "domain/ports/repo.h"
 
 #include "gstnvdsmeta.h"
 
 #include <string>
+#include <unordered_map>
 
 class Visualizer {
 private:
-    FakeObjectRepo& _repo;
+    IObjectRepo& _repo;
     std::unordered_map<ViewType, std::string> _view_type_to_string {};
     std::unordered_map<ActionStateType, std::string> _action_state_to_string {};
     
 public:
     Visualizer(
-        FakeObjectRepo& repo, 
+        IObjectRepo& repo, 
         std::unordered_map<ViewType, std::string> view_type_to_string,
         std::unordered_map<ActionStateType, std::string> action_state_to_string
     )

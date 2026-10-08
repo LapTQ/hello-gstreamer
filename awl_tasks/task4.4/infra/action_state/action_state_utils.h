@@ -2,6 +2,7 @@
 #define ACTION_STATE_UTILS_H
 
 #include "domain/entities/action_state_type.h"
+#include "domain/ports/action_state_parser.h"
 #include "app/services/ops.h"
 
 #include "infra/common/safe_gstnvdsinfer.h"
@@ -143,7 +144,7 @@ inline GstPadProbeReturn postprocess_for_actionstate(GstPad* pad, GstPadProbeInf
 }
 
 
-class ActionStateParser {
+class ActionStateParser : public IActionStateParser {
 private:
     guint _gie_unique_id {};
     std::string _output_layer_name {};
@@ -161,7 +162,7 @@ public:
         _index_to_action_state { index_to_action_state } 
     {}
 
-    std::optional<ActionState> parse(const NvDsObjectMeta* obj_meta) {
+    std::optional<ActionState> parse(const NvDsObjectMeta* obj_meta) override {
         NvDsUserMeta* user_meta {};
         
         // duyệt qua từng user meta trong object

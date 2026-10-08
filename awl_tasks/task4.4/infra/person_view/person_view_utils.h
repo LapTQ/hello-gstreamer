@@ -2,6 +2,7 @@
 #define PERSON_VIEW_UTILS_H
 
 #include "domain/entities/person_view_type.h"
+#include "domain/ports/person_view_parser.h"
 #include "app/services/ops.h"
 
 #include "infra/common/safe_gstnvdsinfer.h"
@@ -13,7 +14,7 @@
 #include <vector>
 #include <string>
 
-class PersonViewParser {
+class PersonViewParser : public IPersonViewParser {
 private:
     guint _gie_unique_id {};
     std::string _output_layer_name {};
@@ -31,7 +32,7 @@ public:
         _index_to_view_type { index_to_view_type } 
     {}
 
-    std::optional<View> parse(const NvDsObjectMeta* obj_meta) {
+    std::optional<View> parse(const NvDsObjectMeta* obj_meta) override {
         NvDsUserMeta* user_meta {};
         
         // duyệt qua từng user meta trong object

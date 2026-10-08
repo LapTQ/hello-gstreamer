@@ -1,25 +1,27 @@
 #ifndef OUTPUT_PARSER_H
 #define OUTPUT_PARSER_H
 
-#include "infra/action_state/action_state_utils.h"
-#include "infra/person_view/person_view_utils.h"
-#include "infra/detection/detection_utils.h"
-#include "infra/repo/repo.h"
+#include "domain/ports/action_state_parser.h"
+#include "domain/ports/person_view_parser.h"
+#include "domain/ports/detection_parser.h"
+#include "domain/ports/repo.h"
 #include "domain/entities/object.h"
+
+#include "gstnvdsmeta.h"
 
 class OutputParser {
 private:
-    DetectionParser& _detection_parser;
-    PersonViewParser& _person_view_parser;
-    ActionStateParser& _action_state_parser;
-    FakeObjectRepo& _repo;
+    IDetectionParser& _detection_parser;
+    IPersonViewParser& _person_view_parser;
+    IActionStateParser& _action_state_parser;
+    IObjectRepo& _repo;
 
 public:
     OutputParser(
-        DetectionParser& detection_parser,
-        PersonViewParser& person_view_parser, 
-        ActionStateParser& action_state_parser,
-        FakeObjectRepo& repo
+        IDetectionParser& detection_parser,
+        IPersonViewParser& person_view_parser, 
+        IActionStateParser& action_state_parser,
+        IObjectRepo& repo
     ) 
         : 
         _detection_parser { detection_parser },

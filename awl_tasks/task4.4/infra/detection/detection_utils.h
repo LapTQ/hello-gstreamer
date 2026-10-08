@@ -3,6 +3,7 @@
 
 #include "domain/entities/object.h"
 #include "domain/entities/detection_class_type.h"
+#include "domain/ports/detection_parser.h"
 
 #include "gstnvdsmeta.h"
 #include "nvdsmeta.h"
@@ -13,7 +14,7 @@
 #include <vector>
 #include <string>
 
-class DetectionParser {
+class DetectionParser : public IDetectionParser {
 private:
     std::unordered_map<gint, DetectionClassType> _index_to_class_type {};
 
@@ -22,7 +23,7 @@ public:
         : _index_to_class_type { index_to_class_type }
     {}
 
-    std::optional<Object> parse(NvDsFrameMeta* frame_meta, NvDsObjectMeta* obj_meta) {
+    std::optional<Object> parse(NvDsFrameMeta* frame_meta, NvDsObjectMeta* obj_meta) override {
         if (this->_index_to_class_type.find(obj_meta->class_id) == this->_index_to_class_type.end()) {
             return std::nullopt;
         }
