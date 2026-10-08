@@ -1,7 +1,7 @@
 #ifndef OBJECT_REPO_H
 #define OBJECT_REPO_H
 
-#include "object.h"
+#include "domain/entities/object.h"
 
 #include <gst/gst.h>
 

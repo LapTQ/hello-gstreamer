@@ -1,8 +1,10 @@
 #ifndef VISUALIZE_UTILS_H
 #define VISUALIZE_UTILS_H
 
-#include "repo.h"
-#include "object.h"
+#include "infra/repo/repo.h"
+#include "domain/entities/object.h"
+#include "domain/entities/person_view_type.h"
+#include "domain/entities/action_state_type.h"
 
 #include "gstnvdsmeta.h"
 

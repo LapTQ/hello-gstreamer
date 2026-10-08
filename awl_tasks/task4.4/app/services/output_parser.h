@@ -1,11 +1,11 @@
 #ifndef OUTPUT_PARSER_H
 #define OUTPUT_PARSER_H
 
-#include "action_state_utils.h"
-#include "person_view_utils.h"
-#include "detection_utils.h"
-#include "repo.h"
-#include "object.h"
+#include "infra/action_state/action_state_utils.h"
+#include "infra/person_view/person_view_utils.h"
+#include "infra/detection/detection_utils.h"
+#include "infra/repo/repo.h"
+#include "domain/entities/object.h"
 
 class OutputParser {
 private:

@@ -1,3 +1,4 @@
+#pragma once
 #ifndef SAFE_GSTNVDSINFER_H
 #define SAFE_GSTNVDSINFER_H
 

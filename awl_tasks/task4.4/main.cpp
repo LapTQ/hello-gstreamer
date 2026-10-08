@@ -1,13 +1,15 @@
-#include "action_state_type.h"
-#include "action_state_utils.h"
-#include "detection_class_type.h"
-#include "detection_utils.h"
-#include "output_parser.h"
-#include "person_view_type.h"
-#include "person_view_utils.h"
-#include "pipeline_utils.h"
-#include "repo.h"
-#include "visualize_utils.h"
+#include "domain/entities/action_state_type.h"
+#include "domain/entities/detection_class_type.h"
+#include "domain/entities/person_view_type.h"
+
+#include "app/services/output_parser.h"
+#include "app/services/pipeline_utils.h"
+#include "app/services/visualize_utils.h"
+
+#include "infra/action_state/action_state_utils.h"
+#include "infra/detection/detection_utils.h"
+#include "infra/person_view/person_view_utils.h"
+#include "infra/repo/repo.h"
 
 #include <gst/gst.h>
 

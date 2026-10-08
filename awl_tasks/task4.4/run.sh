@@ -93,7 +93,7 @@ g++ \
     -Wsign-conversion \
     -std=c++17 \
     -I/opt/nvidia/deepstream/deepstream/sources/includes \
-    -I/home/laptq/hello-gstreamer/awl_tasks/task4.4/includes \
+    -I/home/laptq/hello-gstreamer/awl_tasks/task4.4 \
     -o $PATH__DIR__OUTPUT/main.out \
     $PATH__FILE__SRC \
     `pkg-config --cflags --libs gstreamer-1.0` \

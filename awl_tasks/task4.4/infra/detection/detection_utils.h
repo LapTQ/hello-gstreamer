@@ -1,8 +1,8 @@
 #ifndef DETECTION_UTILS_H
 #define DETECTION_UTILS_H
 
-#include "object.h"
-#include "detection_class_type.h"
+#include "domain/entities/object.h"
+#include "domain/entities/detection_class_type.h"
 
 #include "gstnvdsmeta.h"
 #include "nvdsmeta.h"

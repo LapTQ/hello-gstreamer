@@ -1,10 +1,10 @@
 #ifndef PERSON_VIEW_UTILS_H
 #define PERSON_VIEW_UTILS_H
 
-#include "person_view_type.h"
-#include "ops.h"
+#include "domain/entities/person_view_type.h"
+#include "app/services/ops.h"
 
-#include "safe_gstnvdsinfer.h"
+#include "infra/common/safe_gstnvdsinfer.h"
 #include "gstnvdsmeta.h"
 #include <gst/gst.h>
 

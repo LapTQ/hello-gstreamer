@@ -1,10 +1,10 @@
 #ifndef ACTION_STATE_UTILS_H
 #define ACTION_STATE_UTILS_H
 
-#include "action_state_type.h"
-#include "ops.h"
+#include "domain/entities/action_state_type.h"
+#include "app/services/ops.h"
 
-#include "safe_gstnvdsinfer.h"
+#include "infra/common/safe_gstnvdsinfer.h"
 #include "gstnvdsmeta.h"
 #include "nvdsmeta.h"
 #include <gst/gst.h>
