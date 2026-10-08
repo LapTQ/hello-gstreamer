@@ -1,7 +1,7 @@
 #ifndef PERSON_VIEW_PARSER_PORT_H
 #define PERSON_VIEW_PARSER_PORT_H
 
-#include "domain/entities/person_view_type.h"
+#include "domain/entities/person_view.h"
 
 #include "nvdsmeta.h"
 

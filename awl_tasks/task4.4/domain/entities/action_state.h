@@ -1,5 +1,5 @@
-#ifndef ACTION_STATE_TYPE
-#define ACTION_STATE_TYPE
+#ifndef ACTION_STATE_H
+#define ACTION_STATE_H
 
 enum class ActionStateType {
     HAND_INTO_PANT_POCKET,

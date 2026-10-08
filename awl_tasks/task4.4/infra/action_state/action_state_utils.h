@@ -1,7 +1,7 @@
 #ifndef ACTION_STATE_UTILS_H
 #define ACTION_STATE_UTILS_H
 
-#include "domain/entities/action_state_type.h"
+#include "domain/entities/action_state.h"
 #include "domain/ports/action_state_parser.h"
 #include "app/services/ops.h"
 

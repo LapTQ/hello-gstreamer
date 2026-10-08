@@ -1,6 +1,6 @@
-#include "domain/entities/action_state_type.h"
-#include "domain/entities/detection_class_type.h"
-#include "domain/entities/person_view_type.h"
+#include "domain/entities/action_state.h"
+#include "domain/entities/detection_class.h"
+#include "domain/entities/person_view.h"
 
 #include "app/services/output_parser.h"
 #include "app/services/pipeline_utils.h"

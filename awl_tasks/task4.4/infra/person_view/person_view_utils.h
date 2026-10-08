@@ -1,7 +1,7 @@
 #ifndef PERSON_VIEW_UTILS_H
 #define PERSON_VIEW_UTILS_H
 
-#include "domain/entities/person_view_type.h"
+#include "domain/entities/person_view.h"
 #include "domain/ports/person_view_parser.h"
 #include "app/services/ops.h"
 

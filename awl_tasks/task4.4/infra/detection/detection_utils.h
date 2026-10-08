@@ -2,7 +2,7 @@
 #define DETECTION_UTILS_H
 
 #include "domain/entities/object.h"
-#include "domain/entities/detection_class_type.h"
+#include "domain/entities/detection_class.h"
 #include "domain/ports/detection_parser.h"
 
 #include "gstnvdsmeta.h"

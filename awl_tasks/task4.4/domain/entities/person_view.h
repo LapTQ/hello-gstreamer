@@ -1,5 +1,5 @@
-#ifndef PERSON_VIEW_TYPE_H
-#define PERSON_VIEW_TYPE_H
+#ifndef PERSON_VIEW_H
+#define PERSON_VIEW_H
 
 enum class ViewType {
     FRONT,

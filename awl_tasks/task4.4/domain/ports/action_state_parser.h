@@ -1,7 +1,7 @@
 #ifndef ACTION_STATE_PARSER_PORT_H
 #define ACTION_STATE_PARSER_PORT_H
 
-#include "domain/entities/action_state_type.h"
+#include "domain/entities/action_state.h"
 
 #include "nvdsmeta.h"
 

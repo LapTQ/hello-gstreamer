@@ -1,9 +1,9 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#include "domain/entities/detection_class_type.h"
-#include "domain/entities/person_view_type.h"
-#include "domain/entities/action_state_type.h"
+#include "domain/entities/detection_class.h"
+#include "domain/entities/person_view.h"
+#include "domain/entities/action_state.h"
 
 #include <gst/gst.h>
 

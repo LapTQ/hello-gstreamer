@@ -2,8 +2,8 @@
 #define VISUALIZE_UTILS_H
 
 #include "domain/entities/object.h"
-#include "domain/entities/person_view_type.h"
-#include "domain/entities/action_state_type.h"
+#include "domain/entities/person_view.h"
+#include "domain/entities/action_state.h"
 #include "domain/ports/repo.h"
 
 #include "gstnvdsmeta.h"
