@@ -160,15 +160,15 @@ int main(int argc, char* argv[]) {
             {6, ActionStateType::NOT_HOLDING_PRODUCT},
         }
     };
-    FakeObjectRepo fake_person_repo {};
-    OutputParser parser { detection_parser, person_view_parser, action_state_parser, fake_person_repo };
+    FakeObjectRepo person_repo {};
+    OutputParser parser { detection_parser, person_view_parser, action_state_parser, person_repo };
     GstPad* analytics_tap_srcpad { gst_element_get_static_pad(analytics_tap, "src") };
     gst_pad_add_probe(analytics_tap_srcpad, GST_PAD_PROBE_TYPE_BUFFER, parse_pipeline_output, &parser, NULL);
     g_object_unref(analytics_tap_srcpad);
 
     // visualize OSD
     Visualizer visualizer { 
-        fake_person_repo, 
+        person_repo, 
         {
             {ViewType::FRONT, "Front"}, 
             {ViewType::SIDE, "Side"}, 
