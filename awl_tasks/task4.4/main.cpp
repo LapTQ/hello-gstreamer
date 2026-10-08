@@ -1,45 +1,19 @@
-#include "output_parser.h"
-#include "action_state_utils.h"
 #include "action_state_type.h"
-#include "person_view_utils.h"
-#include "person_view_type.h"
+#include "action_state_utils.h"
 #include "detection_class_type.h"
 #include "detection_utils.h"
-#include "visualize_utils.h"
-#include "repo.h"
-#include "object.h"
+#include "output_parser.h"
+#include "person_view_type.h"
+#include "person_view_utils.h"
 #include "pipeline_utils.h"
-#include "gst/gstelement.h"
-#include "gst/gstelementfactory.h"
-#include "gst/gstobject.h"
-#include "gst/gstpad.h"
-#include "gst/gstpipeline.h"
-#include "gstnvdsmeta.h"
-#include "nvds_roi_meta.h"
-#include "nvdsmeta.h"
-#include "nvll_osd_struct.h"
-#include <cstddef>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include<gst/gst.h>
-#include<vector>
-#include<string>
-#include <glib-unix.h>
-#include<unordered_map>
-#include <stdexcept>
-#include <chrono>
-#include <cstdint>
-#include <unordered_set>
-#include <queue>
-#include <mutex>
-#include <condition_variable>
-#include <fstream>
-#include <iostream>
-#include <thread>
-#include <cmath>
-#include <algorithm>
-#include <optional>
+#include "repo.h"
+#include "visualize_utils.h"
+
+#include <gst/gst.h>
+
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 
 int main(int argc, char* argv[]) {

@@ -22,7 +22,7 @@ inline std::vector<float> softmax(const std::vector<float>& logits) {
 }
 
 inline unsigned int argmax(const std::vector<float>& vec) {
-    return std::distance(vec.begin(), std::max_element(vec.begin(), vec.end()));
+    return (unsigned int)std::distance(vec.begin(), std::max_element(vec.begin(), vec.end()));
 }
 
 #endif
