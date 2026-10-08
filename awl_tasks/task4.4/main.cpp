@@ -9,7 +9,7 @@
 #include "infra/action_state/action_state_utils.h"
 #include "infra/detection/detection_utils.h"
 #include "infra/person_view/person_view_utils.h"
-#include "infra/repo/repo.h"
+#include "infra/repo/fake.h"
 
 #include <gst/gst.h>
 
