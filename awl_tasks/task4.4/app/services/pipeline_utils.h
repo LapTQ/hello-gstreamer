@@ -1,6 +1,7 @@
 #ifndef PIPELINE_UTILS_H
 #define PIPELINE_UTILS_H
 
+#include "gst/gstelement.h"
 #include <gst/gst.h>
 #include <glib-unix.h>
 
@@ -68,6 +69,33 @@ inline gboolean handle_bus_message(GstBus* bus, GstMessage* msg, gpointer loop) 
 }
 
 
+inline GstElement* queued(GstElement* element) {
+    GstElement* queue { gst_element_factory_make("queue", g_strdup_printf("queue_of_[%s]", gst_element_get_name(element))) };
+
+    gchar* name { g_strdup_printf("queue->[%s]", gst_element_get_name(element)) };
+    GstElement* bin { gst_bin_new(name) };
+
+    gst_bin_add_many(GST_BIN(bin), queue, element, NULL);
+    if (!gst_element_link_many(queue, element, NULL)) {
+        g_printerr("Failed to link queue to element\n");
+        gst_object_unref(bin);
+        return nullptr;
+    }
+
+    GstPad* queue_sink_pad { gst_element_get_static_pad(queue, "sink") };
+    GstPad* ghost_sink_pad { gst_ghost_pad_new("sink", queue_sink_pad) };
+    gst_element_add_pad(bin, ghost_sink_pad);
+    gst_object_unref(queue_sink_pad);
+
+    GstPad* element_src_pad { gst_element_get_static_pad(element, "src") };
+    GstPad* ghost_src_pad { gst_ghost_pad_new("src", element_src_pad) };
+    gst_element_add_pad(bin, ghost_src_pad);
+    gst_object_unref(element_src_pad);
+
+    return bin;
+}
+
+
 inline GstElement* create_multi_source_bin(const std::string& bin_name, const std::vector<std::string>& list_uris, int width, int height, bool live_source) {
 
     GstElement* bin { gst_pipeline_new(bin_name.c_str()) };
@@ -128,8 +156,10 @@ inline GstElement* create_osd(int width, int height) {
         "height", height,
         NULL
     );
+    tiler = queued(tiler);
 
     GstElement* converter { gst_element_factory_make("nvvideoconvert", "converter") };
+    converter = queued(converter);
 
     GstElement* nvosd { gst_element_factory_make("nvdsosd", "nvosd") };
     g_object_set(
@@ -138,6 +168,7 @@ inline GstElement* create_osd(int width, int height) {
         "display-text", 1,
         NULL
     );
+    nvosd = queued(nvosd);
 
     GstElement* bin { gst_pipeline_new("osd_bin") };
     gst_bin_add_many(GST_BIN(bin), tiler, converter, nvosd, NULL);
@@ -162,27 +193,28 @@ inline GstElement* create_osd(int width, int height) {
 
 
 inline GstElement* create_mp4_filesink(const std::string& bin_name, const std::string& output_file_path) {
+    GstElement* queue { gst_element_factory_make("queue", "mp4_queue") };
     GstElement* encoder { gst_element_factory_make("nvv4l2h264enc", "encoder") };
     GstElement* parser { gst_element_factory_make("h264parse", "parser") };
     GstElement* mp4mux { gst_element_factory_make("mp4mux", "mp4mux") };
     GstElement* sink { gst_element_factory_make("filesink", "sink") };
     g_object_set(G_OBJECT(sink), "location", output_file_path.c_str(), NULL);
 
-
     GstElement* bin { gst_bin_new(bin_name.c_str()) };
-    gst_bin_add_many(GST_BIN(bin), encoder, parser, mp4mux, sink, NULL);
-    if (!gst_element_link_many(encoder, parser, mp4mux, sink, NULL)) {
+    gst_bin_add_many(GST_BIN(bin), queue, encoder, parser, mp4mux, sink, NULL);
+    if (!gst_element_link_many(queue, encoder, parser, mp4mux, sink, NULL)) {
         g_printerr("Failed to link elements in mp4_filesink_bin\n");
         gst_object_unref(bin);
         return nullptr;
     }
 
-    GstPad* encoder_sink_pad { gst_element_get_static_pad(encoder, "sink") };
-    GstPad* ghost_pad { gst_ghost_pad_new("sink", encoder_sink_pad) };
+    GstPad* queue_sink_pad { gst_element_get_static_pad(queue, "sink") };
+    GstPad* ghost_pad { gst_ghost_pad_new("sink", queue_sink_pad) };
     gst_element_add_pad(bin, ghost_pad);
-    gst_object_unref(encoder_sink_pad);
+    gst_object_unref(queue_sink_pad);
 
     return bin;
 }
+
 
 #endif

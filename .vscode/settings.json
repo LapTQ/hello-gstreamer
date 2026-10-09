@@ -1,5 +1,6 @@
 {
     "C_Cpp.intelliSenseEngine": "disabled",
-    "editor.semanticHighlighting.enabled": true
+    "editor.semanticHighlighting.enabled": true,
+    "cmake.sourceDirectory": "/home/laptq/hello-gstreamer/awl_tasks/task4.4"
 }
 
