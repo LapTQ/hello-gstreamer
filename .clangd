@@ -10,4 +10,5 @@ CompileFlags:
     - -I/usr/include/aarch64-linux-gnu
     - -I/usr/include/orc-0.4
     - -I/opt/nvidia/deepstream/deepstream-7.0/sources/includes
-    - -I/home/laptq/hello-gstreamer/awl_tasks/task4.4
+    - -I/hello-gstreamer/awl_tasks/task4.4
+    - -I/hello-gstreamer/outputs/yaml-cpp/install/include

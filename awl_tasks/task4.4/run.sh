@@ -1,6 +1,6 @@
 set -e
 
-PATH__FILE__SRC=awl_tasks/task4.4/main.cpp
+PATH__FILE__SRC="awl_tasks/task4.4/main/main.cpp awl_tasks/task4.4/main/bootstrap.cpp"
 PATH__DIR__OUTPUT=outputs
 mkdir -p $PATH__DIR__OUTPUT
 
@@ -93,14 +93,17 @@ g++ \
     -Wsign-conversion \
     -std=c++17 \
     -I/opt/nvidia/deepstream/deepstream/sources/includes \
-    -I/home/laptq/hello-gstreamer/awl_tasks/task4.4 \
+    -I/hello-gstreamer/awl_tasks/task4.4 \
+    -I/hello-gstreamer/outputs/yaml-cpp/install/include \
     -o $PATH__DIR__OUTPUT/main.out \
     $PATH__FILE__SRC \
     `pkg-config --cflags --libs gstreamer-1.0` \
     -L/opt/nvidia/deepstream/deepstream/lib \
+    -L/hello-gstreamer/outputs/yaml-cpp/install/lib -lyaml-cpp \
     -lnvdsgst_meta \
     -lnvds_meta \
     -Wl,-rpath,/opt/nvidia/deepstream/deepstream/lib \
+    -Wl,-rpath,/hello-gstreamer/outputs/yaml-cpp/install/lib
     
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/nvidia/deepstream/deepstream/lib

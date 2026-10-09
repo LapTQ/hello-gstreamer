@@ -1,0 +1,74 @@
+source:
+  uris:
+    - "rtsp://admin:12345@192.168.3.26/live"
+    - "rtsp://admin:12345@192.168.3.21/live"
+  width: 960
+  height: 640
+  live_source: true
+
+detector:
+  config_file_path: "awl_tasks/task4.4/nvinfer_detector_config_file.yml"
+  classes:
+    0: "PERSON"
+
+tracker:
+  tracker_width: 640
+  tracker_height: 640
+  gpu_id: 0
+  ll_lib_file: "/opt/nvidia/deepstream/deepstream/lib/libnvds_nvmultiobjecttracker.so"
+  ll_config_file: "/opt/nvidia/deepstream/deepstream/samples/configs/deepstream-app/config_tracker_NvDCF_perf.yml"
+
+person_view:
+  config_file_path: "awl_tasks/task4.4/nvinfer_person_view_config_file.yml"
+  gie_unique_id: 2
+  output_layer_name: "output"
+  views:
+    0: "FRONT"
+    1: "SIDE"
+    2: "BACK"
+
+action_state:
+  config_file_path: "awl_tasks/task4.4/nvinfer_action_state_config_file.yml"
+  gie_unique_id: 3
+  output_layer_name: "output"
+  width_ratio: 1.3
+  height_ratio: 1.1
+  classes_to_rescale:
+    - 0
+  class_offset: 1000
+  actions:
+    0: "HAND_INTO_PANT_POCKET"
+    1: "HAND_INTO_SHIRT_POCKET"
+    2: "HAND_INTO_BAG"
+    3: "HAND_INTO_BASKET"
+    4: "HAND_INTO_SHELF"
+    5: "HOLDING_PRODUCT"
+    6: "NOT_HOLDING_PRODUCT"
+
+logger:
+  fps_measurement_interval_sec: 1
+
+osd:
+  width: 1920
+  height: 640
+
+sink:
+  type: "mp4" # "mp4", "display", "fakesink"
+  output_path: "outputs/output.mp4"
+
+repo:
+  type: "fake" # "fake", "file", ...
+
+visualizer:
+  view_labels:
+    FRONT: "Front"
+    SIDE: "Side"
+    BACK: "Back"
+  action_labels:
+    HAND_INTO_PANT_POCKET: "Hand->pant"
+    HAND_INTO_SHIRT_POCKET: "Hand->shirt"
+    HAND_INTO_BAG: "Hand->bag"
+    HAND_INTO_BASKET: "Hand->basket"
+    HAND_INTO_SHELF: "Hand->shelf"
+    HOLDING_PRODUCT: "Hold product"
+    NOT_HOLDING_PRODUCT: "Not hold product"
