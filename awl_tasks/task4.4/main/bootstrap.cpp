@@ -49,6 +49,7 @@ GstElement* _create_pgie_detection(Settings settings) {
         "config-file-path", settings.detector_settings.config_file_path.c_str(),
         NULL
     );      // 1 vài thuộc tính trong file config có thể được ghi đè thông qua Gst Properties
+    detector = queued(detector);
 
     return detector;
 }
@@ -65,6 +66,7 @@ GstElement* _create_tracker(Settings settings) {
         "ll-config-file", settings.tracker_settings.ll_config_file.c_str(),
         NULL
     );
+    tracker = queued(tracker);
 
     return tracker;
 }
@@ -77,6 +79,7 @@ GstElement* _create_sgie_person_view(Settings settings) {
         "config-file-path", settings.person_view_settings.config_file_path.c_str(),
         NULL
     );
+    person_view_classifier = queued(person_view_classifier);
 
     return person_view_classifier;
 }
@@ -112,6 +115,8 @@ GstElement* _create_sgie_action_state(Settings settings) {
         processor,
         [](gpointer data) { delete static_cast<ActionStateProcessor*>(data); }
     );
+
+    action_state_classifier = queued(action_state_classifier);
 
     return action_state_classifier;
 }
@@ -170,6 +175,8 @@ GstElement* _create_analytics_tap(Settings settings, IObjectRepo& object_repo) {
         [](gpointer data) { delete static_cast<OutputParser*>(data); }
     );
 
+    analytics_tap = queued(analytics_tap);
+
     return analytics_tap;
 }
 
@@ -212,11 +219,23 @@ GstElement* _create_osd(Settings settings, IObjectRepo& object_repo) {
 
 GstElement* _create_sink(Settings settings) {
     if (settings.sink_settings.type == "display") {
-        return gst_element_factory_make("nveglglessink", "sink");
+        GstElement* sink { gst_element_factory_make("nveglglessink", "sink") };
+        g_object_set(
+            G_OBJECT(sink),
+            "sync", settings.sink_settings.sync,
+            NULL
+        );
+        return sink;
     } else if (settings.sink_settings.type == "fakesink") {
-        return gst_element_factory_make("fakesink", "sink");
+        GstElement* sink { gst_element_factory_make("fakesink", "sink") };
+        g_object_set(
+            G_OBJECT(sink),
+            "sync", settings.sink_settings.sync,
+            NULL
+        );
+        return sink;
     } else if (settings.sink_settings.type == "mp4") {
-        return create_mp4_filesink("mp4_filesink_bin", settings.sink_settings.output_path);
+        return create_mp4_filesink("mp4_filesink_bin", settings.sink_settings.output_path, settings.sink_settings.sync);
     } else {
         throw std::invalid_argument("Unsupported sink type: '" + settings.sink_settings.type + "'. Expected 'mp4', 'display', or 'fakesink'.");
     }

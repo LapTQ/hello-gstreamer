@@ -55,6 +55,7 @@ osd:
 sink:
   type: "mp4" # "mp4", "display", "fakesink"
   output_path: "outputs/output.mp4"
+  sync: false
 
 repo:
   type: "fake" # "fake", "file", ...

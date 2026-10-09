@@ -103,7 +103,7 @@ inline GstElement* create_multi_source_bin(const std::string& bin_name, const st
     GstElement* streammux { gst_element_factory_make("nvstreammux", "streammux") };
     g_object_set(
         G_OBJECT(streammux),
-        "live-source", live_source ? 1 : 0,
+        "live-source", live_source,
         "batch-size", list_uris.size(),
         "width", width,
         "height", height,
@@ -192,13 +192,18 @@ inline GstElement* create_osd(int width, int height) {
 }
 
 
-inline GstElement* create_mp4_filesink(const std::string& bin_name, const std::string& output_file_path) {
+inline GstElement* create_mp4_filesink(const std::string& bin_name, const std::string& output_file_path, bool sync = false) {
     GstElement* queue { gst_element_factory_make("queue", "mp4_queue") };
     GstElement* encoder { gst_element_factory_make("nvv4l2h264enc", "encoder") };
     GstElement* parser { gst_element_factory_make("h264parse", "parser") };
     GstElement* mp4mux { gst_element_factory_make("mp4mux", "mp4mux") };
     GstElement* sink { gst_element_factory_make("filesink", "sink") };
-    g_object_set(G_OBJECT(sink), "location", output_file_path.c_str(), NULL);
+    g_object_set(
+        G_OBJECT(sink), 
+        "location", output_file_path.c_str(), 
+        "sync", sync, 
+        NULL
+    );
 
     GstElement* bin { gst_bin_new(bin_name.c_str()) };
     gst_bin_add_many(GST_BIN(bin), queue, encoder, parser, mp4mux, sink, NULL);

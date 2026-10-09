@@ -61,6 +61,7 @@ struct OsdSettings {
 struct SinkSettings {
     std::string type {};
     std::string output_path {};
+    bool sync {};
 };
 
 struct RepoSettings {
@@ -179,6 +180,7 @@ inline Settings Settings::from_yaml(const std::string& path) {
     auto sink = node["sink"];
     settings.sink_settings.type = sink["type"].as<std::string>();
     settings.sink_settings.output_path = sink["output_path"].as<std::string>();
+    settings.sink_settings.sync = sink["sync"].as<bool>();
 
     // 9. Repo
     settings.repo_settings.type = node["repo"]["type"].as<std::string>();
