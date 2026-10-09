@@ -7,7 +7,7 @@ source:
   live_source: true
 
 detector:
-  config_file_path: "awl_tasks/task4.4/nvinfer_detector_config_file.yml"
+  config_file_path: "awl_tasks/task4.4/configs/nvinfer_detector_config_file.yml"
   classes:
     0: "PERSON"
 
@@ -19,7 +19,7 @@ tracker:
   ll_config_file: "/opt/nvidia/deepstream/deepstream/samples/configs/deepstream-app/config_tracker_NvDCF_perf.yml"
 
 person_view:
-  config_file_path: "awl_tasks/task4.4/nvinfer_person_view_config_file.yml"
+  config_file_path: "awl_tasks/task4.4/configs/nvinfer_person_view_config_file.yml"
   gie_unique_id: 2
   output_layer_name: "output"
   views:
@@ -28,7 +28,7 @@ person_view:
     2: "BACK"
 
 action_state:
-  config_file_path: "awl_tasks/task4.4/nvinfer_action_state_config_file.yml"
+  config_file_path: "awl_tasks/task4.4/configs/nvinfer_action_state_config_file.yml"
   gie_unique_id: 3
   output_layer_name: "output"
   width_ratio: 1.3

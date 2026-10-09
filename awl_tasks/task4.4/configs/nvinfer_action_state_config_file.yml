@@ -6,7 +6,7 @@ property:
   maintain-aspect-ratio: 1
   symmetric-padding: 1
 
-  model-engine-file: ../../assets/action_state/best-epoch=62-val_f1=0.571.ckpt.onnx.fp16_max100.trt
+  model-engine-file: ../../../assets/action_state/best-epoch=62-val_f1=0.571.ckpt.onnx.fp16_max100.trt
   batch-size: 16
   # 0=FP32 and 1=INT8 mode
   network-mode: 2

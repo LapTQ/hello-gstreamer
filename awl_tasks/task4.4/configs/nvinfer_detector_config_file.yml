@@ -16,7 +16,7 @@ property:
   model-color-format: 0
   maintain-aspect-ratio: 1
   network-input-order: 0
-  labelfile-path: ../../assets/libreyolo9/labels.txt
+  labelfile-path: ../../../assets/libreyolo9/labels.txt
   batch-size: 2
   interval: 0
   gie-unique-id: 1
@@ -44,8 +44,8 @@ property:
   infer-dims: 3;640;640
   num-detected-classes: 80
 
-  custom-lib-path: ../../assets/libreyolo9/libnvdsinfer_custom_impl_Yolo.so
-  model-engine-file: ../../assets/libreyolo9/LibreYOLO9t.onnx.fp16_max100.trt
+  custom-lib-path: ../../../assets/libreyolo9/libnvdsinfer_custom_impl_Yolo.so
+  model-engine-file: ../../../assets/libreyolo9/LibreYOLO9t.onnx.fp16_max100.trt
 
 
 class-attrs-all:

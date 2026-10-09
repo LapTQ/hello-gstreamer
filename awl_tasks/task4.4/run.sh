@@ -1,6 +1,5 @@
 set -e
 
-PATH__FILE__SRC="awl_tasks/task4.4/main/main.cpp awl_tasks/task4.4/main/bootstrap.cpp"
 PATH__DIR__OUTPUT=outputs
 mkdir -p $PATH__DIR__OUTPUT
 
@@ -78,34 +77,39 @@ if [ ! -f "$WEIGHT" ]; then
         --fp16
 fi
 
+# build and install yaml-cpp
+YAML_CPP_LIB="${PATH__DIR__OUTPUT}/yaml-cpp/install/lib/libyaml-cpp.so"
+if [ ! -f "$YAML_CPP_LIB" ]; then
+    echo "File $YAML_CPP_LIB does not exist. Preparing to build and install yaml-cpp..."
+    if [ ! -d "${PATH__DIR__OUTPUT}/yaml-cpp" ]; then
+        echo "Cloning yaml-cpp into ${PATH__DIR__OUTPUT}/yaml-cpp..."
+        git clone https://github.com/jbeder/yaml-cpp.git "${PATH__DIR__OUTPUT}/yaml-cpp"
+    fi
+
+    INSTALL_DIR="$(pwd)/${PATH__DIR__OUTPUT}/yaml-cpp/install"
+
+    cmake \
+        -B "${PATH__DIR__OUTPUT}/yaml-cpp/build" \
+        -S "${PATH__DIR__OUTPUT}/yaml-cpp" \
+        -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR" \
+        -DYAML_BUILD_SHARED_LIBS=ON \
+        -DCMAKE_BUILD_TYPE=Release
+
+    cmake --build "${PATH__DIR__OUTPUT}/yaml-cpp/build" -j$(nproc)
+    cmake --build "${PATH__DIR__OUTPUT}/yaml-cpp/build" --target install
+    echo "Successfully built and installed yaml-cpp to $INSTALL_DIR"
+fi
+
 # export GST_DEBUG=2
 
-g++ \
-    -fdiagnostics-color=always \
-    -g \
-    -ggdb \
-    -O2 \
-    -DNDEBUG \
-    -pedantic-errors \
-    -Wall \
-    -Wextra \
-    -Wconversion \
-    -Wsign-conversion \
-    -std=c++17 \
-    -I/opt/nvidia/deepstream/deepstream/sources/includes \
-    -I/hello-gstreamer/awl_tasks/task4.4 \
-    -I/hello-gstreamer/outputs/yaml-cpp/install/include \
-    -o $PATH__DIR__OUTPUT/main.out \
-    $PATH__FILE__SRC \
-    `pkg-config --cflags --libs gstreamer-1.0` \
-    -L/opt/nvidia/deepstream/deepstream/lib \
-    -L/hello-gstreamer/outputs/yaml-cpp/install/lib -lyaml-cpp \
-    -lnvdsgst_meta \
-    -lnvds_meta \
-    -Wl,-rpath,/opt/nvidia/deepstream/deepstream/lib \
-    -Wl,-rpath,/hello-gstreamer/outputs/yaml-cpp/install/lib
-    
+# -S: thư mục chứa CMakeLists.txt
+# -B: thư mục build
+cmake \
+    -S awl_tasks/task4.4 \
+    -B $PATH__DIR__OUTPUT/build \
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
 
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/nvidia/deepstream/deepstream/lib
-./${PATH__DIR__OUTPUT}/main.out
+cmake --build $PATH__DIR__OUTPUT/build -j$(nproc)
+
+./$PATH__DIR__OUTPUT/build/main.out
 
