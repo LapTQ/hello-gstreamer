@@ -3,6 +3,7 @@
 
 #include "domain/ports/repo.h"
 
+#include "app/services/latency_measurer.h"
 #include "app/services/output_parser.h"
 #include "app/services/pipeline_utils.h"
 #include "app/services/visualize_utils.h"
@@ -293,6 +294,23 @@ std::optional<BootstrapRet> bootstrap(Settings settings) {
         g_object_unref(pipeline);
         return std::nullopt;
     }
+
+    // Đo Pipeline Processing Latency (từ nvstreammux -> sau analytics_tap & DB write)
+    auto* latency_measurer = new LatencyMeasurer(1);
+    GstPad* source_srcpad { gst_element_get_static_pad(source, "src") };
+    gst_pad_add_probe(source_srcpad, GST_PAD_PROBE_TYPE_BUFFER, latency_start_probe, latency_measurer, NULL);
+    g_object_unref(source_srcpad);
+
+    GstPad* analytics_srcpad { gst_element_get_static_pad(analytics_tap, "src") };
+    gst_pad_add_probe(analytics_srcpad, GST_PAD_PROBE_TYPE_BUFFER, latency_end_probe, latency_measurer, NULL);
+    g_object_unref(analytics_srcpad);
+
+    g_object_set_data_full(
+        G_OBJECT(pipeline),
+        "latency_measurer",
+        latency_measurer,
+        [](gpointer data) { delete static_cast<LatencyMeasurer*>(data); }
+    );
 
     GstBus* bus { gst_element_get_bus(pipeline) };
     GMainLoop* loop { g_main_loop_new(NULL, FALSE) };
