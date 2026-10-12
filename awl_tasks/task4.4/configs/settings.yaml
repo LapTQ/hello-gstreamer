@@ -58,7 +58,8 @@ sink:
   sync: false
 
 repo:
-  type: "fake" # "fake", "file", ...
+  type: "sqlite" # "fake", "sqlite"
+  db_path: "outputs/sqlite.db"
 
 visualizer:
   view_labels:

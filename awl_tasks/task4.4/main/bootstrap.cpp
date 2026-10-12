@@ -11,6 +11,7 @@
 #include "infra/detection/detection_utils.h"
 #include "infra/person_view/person_view_utils.h"
 #include "infra/repo/fake.h"
+#include "infra/repo/sqlite.h"
 
 #include <gst/gst.h>
 #include <optional>
@@ -21,8 +22,10 @@
 std::unique_ptr<IObjectRepo> _create_repo(Settings settings) {
     if (settings.repo_settings.type == "fake") {
         return std::make_unique<FakeObjectRepo>();
+    } else if (settings.repo_settings.type == "sqlite") {
+        return std::make_unique<SqliteObjectRepo>(settings.repo_settings.db_path);
     } else {
-        throw std::invalid_argument("Unsupported repo type: '" + settings.repo_settings.type + "'. Expected 'fake'.");
+        throw std::invalid_argument("Unsupported repo type: '" + settings.repo_settings.type + "'. Expected 'fake' or 'sqlite'.");
     }
 }
 

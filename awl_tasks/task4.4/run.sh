@@ -100,6 +100,30 @@ if [ ! -f "$YAML_CPP_LIB" ]; then
     echo "Successfully built and installed yaml-cpp to $INSTALL_DIR"
 fi
 
+# build and install SQLiteCpp
+SQLITECPP_LIB="${PATH__DIR__OUTPUT}/SQLiteCpp/install/lib/libSQLiteCpp.a"
+if [ ! -f "$SQLITECPP_LIB" ]; then
+    echo "File $SQLITECPP_LIB does not exist. Preparing to build and install SQLiteCpp..."
+    if [ ! -d "${PATH__DIR__OUTPUT}/SQLiteCpp" ]; then
+        echo "Cloning SQLiteCpp into ${PATH__DIR__OUTPUT}/SQLiteCpp..."
+        git clone https://github.com/SRombauts/SQLiteCpp.git "${PATH__DIR__OUTPUT}/SQLiteCpp"
+    fi
+
+    INSTALL_DIR="$(pwd)/${PATH__DIR__OUTPUT}/SQLiteCpp/install"
+
+    cmake \
+        -B "${PATH__DIR__OUTPUT}/SQLiteCpp/build" \
+        -S "${PATH__DIR__OUTPUT}/SQLiteCpp" \
+        -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR" \
+        -DSQLITECPP_INTERNAL_SQLITE=ON \
+        -DSQLITECPP_RUN_CPPLINT=OFF \
+        -DCMAKE_BUILD_TYPE=Release
+
+    cmake --build "${PATH__DIR__OUTPUT}/SQLiteCpp/build" -j$(nproc)
+    cmake --build "${PATH__DIR__OUTPUT}/SQLiteCpp/build" --target install
+    echo "Successfully built and installed SQLiteCpp to $INSTALL_DIR"
+fi
+
 # export GST_DEBUG=2
 
 # -S: thư mục chứa CMakeLists.txt

@@ -66,6 +66,7 @@ struct SinkSettings {
 
 struct RepoSettings {
     std::string type {};
+    std::string db_path {};
 };
 
 struct VisualizerSettings {
@@ -184,6 +185,9 @@ inline Settings Settings::from_yaml(const std::string& path) {
 
     // 9. Repo
     settings.repo_settings.type = node["repo"]["type"].as<std::string>();
+    if (node["repo"]["db_path"]) {
+        settings.repo_settings.db_path = node["repo"]["db_path"].as<std::string>();
+    }
 
     // 10. Visualizer
     auto visualizer = node["visualizer"];

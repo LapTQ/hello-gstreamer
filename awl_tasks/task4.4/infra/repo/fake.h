@@ -1,5 +1,5 @@
-#ifndef OBJECT_REPO_H
-#define OBJECT_REPO_H
+#ifndef FAKE_REPO_H
+#define FAKE_REPO_H
 
 #include "domain/entities/object.h"
 #include "domain/ports/repo.h"

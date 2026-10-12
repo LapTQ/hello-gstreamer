@@ -26,6 +26,7 @@ target_include_directories(main.out PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}                          # awl_tasks/task4.4
     /opt/nvidia/deepstream/deepstream/sources/includes   # DeepStream headers
     ${CMAKE_CURRENT_SOURCE_DIR}/../../outputs/yaml-cpp/install/include    # yaml-cpp headers
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../outputs/SQLiteCpp/install/include   # SQLiteCpp headers
     ${GST_INCLUDE_DIRS}                                  # GStreamer headers
 )
 
@@ -33,17 +34,22 @@ target_include_directories(main.out PRIVATE
 target_link_directories(main.out PRIVATE
     /opt/nvidia/deepstream/deepstream/lib
     ${CMAKE_CURRENT_SOURCE_DIR}/../../outputs/yaml-cpp/install/lib
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../outputs/SQLiteCpp/install/lib
 )
 
 # 7. -l...
 target_link_libraries(main.out PRIVATE
     ${GST_LIBRARIES}
     yaml-cpp
+    SQLiteCpp
+    sqlite3
+    pthread
+    dl
     nvdsgst_meta
     nvds_meta
 )
 
 # -Wl,-rpath,...
 set_target_properties(main.out PROPERTIES
-    BUILD_RPATH "/opt/nvidia/deepstream/deepstream/lib;${CMAKE_CURRENT_SOURCE_DIR}/../../outputs/yaml-cpp/install/lib"
+    BUILD_RPATH "/opt/nvidia/deepstream/deepstream/lib;${CMAKE_CURRENT_SOURCE_DIR}/../../outputs/yaml-cpp/install/lib;${CMAKE_CURRENT_SOURCE_DIR}/../../outputs/SQLiteCpp/install/lib"
 )
