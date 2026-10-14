@@ -37,17 +37,18 @@ bash awl_tasks/task4.4/run.sh
 
 ## 4. Performance Benchmark
 
-*GPU: Jupiter (RTX 4090).*
+* **Device**: Jupiter (RTX 4090).
+* **Input**: 2 video streams: `assets/sample_720p.h264`
 
-| Metric | Stream 0 (`192.168.3.26`) | Stream 1 (`192.168.3.21`) | Total |
+
+| Metric | Stream 0 | Stream 1 | Total |
 | :--- | :---: | :---: | :---: |
-| **Input Resolution & FPS** | 960 x 640 @ 10 FPS | 960 x 640 @ 5 FPS | |
-| **Real-time Processing FPS** (Matches camera rate for RTSP) | **9.74 FPS** | **4.74 FPS** | |
-| **Latency** (from streammux -> before OSD) | **18.50 ms** | **18.22 ms** | |
-| **GPU Utilization (%)** | — | — | 18% – 24% (`nvidia-smi`) |
+| **Real-time Processing FPS** | 154.83 FPS | 154.83 FPS | |
+| **Latency** (from streammux -> before OSD) | 20.81 ms | 20.81 ms | |
+| **GPU Utilization (%)** | — | — | 3% (`nvtop`) |
 | **GPU VRAM** | — | — | ~2.8 GB |
-| **CPU Usage** | — | — | ~1.8 CPU cores (`top`) |
-| **System RAM** | — | — | ~1.2 GB |
+| **CPU Usage** | — | — | ~0.3 CPU cores (`htop`) |
+| **System RAM** | — | — | ~2.5 GB |
 
 ---
 
